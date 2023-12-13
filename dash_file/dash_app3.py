@@ -3,13 +3,14 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
 
+dash3 = Dash(requests_pathname_prefix="/dash/app3/", external_stylesheets=[dbc.themes.BOOTSTRAP])
+dash3.title='中華職棒查詢dash3'
+
 current_data = cpbl_datasource.lastest_datetime_data()
 
 current_df = pd.DataFrame(current_data,
                           columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '救援成功', '中繼成功', '有效局數', '面對打者數', '被安打數', '被全壘打數', '保送數', '三振數', '自責分', '投打習慣', '背號', '身高體重', '生日', '照片網址', '奪三振率', '防禦率'])
 
-dash3 = Dash(requests_pathname_prefix="/dash/app3/", external_stylesheets=[dbc.themes.BOOTSTRAP])
-dash3.title='中華職棒查詢dash3'
 
 #layout
 dash3.layout = html.Div(
@@ -127,7 +128,7 @@ dash3.layout = html.Div(
 
 #回傳查詢的確定按鈕被按了幾次
 @callback(
-    [Output('main_table','data'),Output('main_table', 'column'),Output('main_table','selected_rows')],
+    [Output('main_table','data'),Output('main_table', 'column')],
     [Input('submit-val','n_clicks')],
     [State('input_value','value')]
 )
@@ -142,7 +143,7 @@ def clickBtn(n_clicks:None | int, inputValue:str):
         #current_df = current_df.reset_index()
         #'] = current_df['站點名稱'].map(lambda name:name[11:])
         print('按確定')
-        return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
+        return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
@@ -151,7 +152,7 @@ def clickBtn(n_clicks:None | int, inputValue:str):
     current_data = cpbl_datasource.lastest_datetime_data()
     current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '救援成功', '中繼成功', '有效局數', '面對打者數', '被安打數', '被全壘打數', '保送數', '三振數', '自責分', '投打習慣', '背號', '身高體重', '生日', '照片網址', '奪三振率', '防禦率'])
 
-    return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
+    return current_df.to_dict('records'), [{'id': column, 'name': column} for column in current_df.columns]
 
 
 @callback(
@@ -167,7 +168,7 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
               oneSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
-              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite.to_dict('records'), [{"name": i, "id": i} for i in oneSite.columns])
+              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite.to_dict('records'), [{'id': column, 'name': column} for column in current_df.columns])
 
               return oneTable
         
