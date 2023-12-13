@@ -9,7 +9,7 @@ myip = socket.gethostbyname(socket.gethostname())
 
 if '172.17.0.2' <= myip <= '172.17.255.255':
     print(f'本機{myip}')
-    from . import render_password as rpw
+    from . import password as rpw
     DATABASE=rpw.DATABASE
     USER=rpw.USER
     PASSWORD=rpw.PASSWORD

@@ -19,11 +19,12 @@ dash2.layout = html.Div(
         dbc.Container([
             html.Div([
                 html.Div([
-                    html.H1("台北市youbike及時資料")
+                    html.H1("中華職棒查詢")
                 ],className="col text-center")
             ],
             className="row",
             style={"paddingTop":'2rem'}),
+            #搜尋功能
             html.Div([
                 html.Div([
                     html.Div([
