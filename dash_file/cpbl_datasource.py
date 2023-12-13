@@ -3,8 +3,6 @@ import psycopg2
 import password as pw
 import csv
 
-threadRun = True 
-
 def __open_cpbl_data() ->list[dict]:
 
     pitchings_2022 = 'pitchings_2022_updated.csv'
@@ -12,14 +10,19 @@ def __open_cpbl_data() ->list[dict]:
         with open (pitchings_2022, mode='r', encoding='utf-8', newline='') as pitchings_file:
             pitchings_dictReader = csv.DictReader(pitchings_file)
             print('讀取成功')
-            print(list(pitchings_dictReader))
+            #print(list(pitchings_dictReader))
             return list(pitchings_dictReader)
     except Exception as e:
             print(f'讀取錯誤{e}')
             return  []
     
 
-def __create_table(conn)->None:    
+def __create_table(conn)->None:
+    conn = psycopg2.connect(database=pw.DATABASE,
+                            user=pw.USER, 
+                            password=pw.PASSWORD,
+                            host=pw.HOST, 
+                            port="5432")    
     cursor = conn.cursor()
     cursor.execute(
         '''
@@ -35,7 +38,7 @@ def __create_table(conn)->None:
             "敗場數" INTEGER,
             "救援成功" INTEGER,
             "中繼成功" INTEGER,
-            "有效局數" INTEGER,
+            "有效局數" FLOAT,
             "面對打者數" INTEGER,
             "被安打數" INTEGER,
             "被全壘打數" INTEGER,
@@ -49,7 +52,7 @@ def __create_table(conn)->None:
             "照片網址" TEXT NOT NULL,
             "奪三振率" FLOAT NOT NULL,
             "防禦率" FLOAT NOT NULL,
-            PRIMARY KEY("球員編號",
+            PRIMARY KEY("球員編號"),
             UNIQUE(年份, 球員編號)
         );
         '''
@@ -59,6 +62,11 @@ def __create_table(conn)->None:
     print("create_table成功")
 
 def __insert_data(conn,values:list[any])->None:
+    conn = psycopg2.connect(database=pw.DATABASE,
+                            user=pw.USER, 
+                            password=pw.PASSWORD,
+                            host=pw.HOST, 
+                            port="5432")
     cursor = conn.cursor()
     sql = '''
     INSERT INTO cpbl_pitchings(年份, 所屬球隊, 球員編號, 球員姓名, 出場數, 先發次數, 中繼次數, 勝場數, 敗場數, 救援成功, 中繼成功, 有效局數, 面對打者數, 被安打數, 被全壘打數, 保送數, 三振數, 自責分, 投打習慣, 背號, 身高體重, 生日, 照片網址, 奪三振率, 防禦率)
@@ -68,6 +76,7 @@ def __insert_data(conn,values:list[any])->None:
     cursor.execute(sql,values)    
     conn.commit()
     cursor.close()
+    print('insert成功')
 
 def updata_render_data()->None:
     '''
@@ -82,11 +91,10 @@ def updata_render_data()->None:
         
     __create_table(conn)
     for item in data:
-        if threadRun == True:
             __insert_data(conn, values=[item['Year'], item['Team Name'], item['ID'], item['Name'], item['G'], item['GS'], item['GR'],item['W'], item['L'], item['SV'], item['HLD'], item['IP'], item['BF'], item['H'],item['HR'], item['BB'], item['SO'], item['ER'], item['B_t'], item['Number'], item['Ht_wt'],item['Born'],item['Img'],item['K9'],item['ERA']])
-        else:
-            break #次執行緒強制執行
+
     conn.close()
+    print('update成功')
 
 #呼叫最新資料
 
@@ -98,14 +106,14 @@ def lastest_datetime_data()->list[tuple]:
                             port="5432")
     cursor = conn.cursor()
     sql = '''
-    SELECT *
-    FROM cpbl_pitchings
+    select 年份, 所屬球隊, 球員編號, 球員姓名, 出場數, 先發次數, 中繼次數, 勝場數, 敗場數, 救援成功, 中繼成功, 有效局數, 面對打者數, 被安打數, 被全壘打數, 保送數, 三振數, 自責分, 投打習慣, 背號, 身高體重, 生日, 照片網址, 奪三振率, 防禦率 from cpbl_pitchings
     '''
     cursor.execute(sql)
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+    print('latest成功')
+    #print(f'latest_rows:{rows}')
     return rows
 
 def search_sitename(word:str) -> list[tuple]:
