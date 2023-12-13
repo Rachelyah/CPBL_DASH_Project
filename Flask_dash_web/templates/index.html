@@ -1,0 +1,29 @@
+{% extends "base_navigation.html" %} <!--繼承base.html-->
+{% block title %}Flask_Dash{% endblock %}
+{% block head %}
+{{ super() }}
+<!--透過super保留樣本的東西，下面就可以寫我自訂這頁的東西-->
+    <style>
+        @media (min-width: 576px) {    }
+
+        @media (min-width: 768px) {    }
+
+        @media (min-width: 992px) {    }
+
+        @media (min-width: 1200px) {    }
+
+        @media (min-width: 1400px) {    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-lg">
+        <h1>歡迎光臨</h1>
+        {{ super() }} <!--繼承footer-->
+    </div>
+    
+{% endblock %}
+
+{% block footer %}
+    &copy; Copyright 2023 by <a href="https://flase-dash-web.onrender.com">Rachel</a>.
+{% endblock %}
