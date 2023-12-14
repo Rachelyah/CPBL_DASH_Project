@@ -107,7 +107,21 @@ def lastest_datetime_data()->list[tuple]:
                             port="5432")
     cursor = conn.cursor()
     sql = '''
-    select 年份, 所屬球隊, 球員編號, 球員姓名, 出場數, 先發次數, 中繼次數, 勝場數, 敗場數, 救援成功, 中繼成功, 有效局數, 面對打者數, 被安打數, 被全壘打數, 保送數, 三振數, 自責分, 投打習慣, 背號, 身高體重, 生日, 照片網址, 奪三振率, 防禦率 from cpbl_pitchings
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        出場數, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分, 
+        奪三振率, 
+        防禦率 
+        from cpbl_pitchings
     '''
     cursor.execute(sql)
     rows = cursor.fetchall()

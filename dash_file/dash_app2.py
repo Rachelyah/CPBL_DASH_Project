@@ -1,19 +1,19 @@
 from dash import Dash, html, dash_table, callback, Input, Output, dcc, State
 import pandas as pd
 import dash_bootstrap_components as dbc
-from . import datasource
+from . import cpbl_datasource
 
-current_data = datasource.lastest_datetime_data()
-current_df = pd.DataFrame(current_data,columns=['站點名稱','更新時間','行政區','地址','總數','可借','可還'])
-current__df = current_df.reset_index()
-current__df['站點名稱'] = current__df['站點名稱'].map(lambda name:name[11:])
-
-#建立一個Dash的實體，加入網址、style設定
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
-dash2.title='台北市'
+dash2.title='中華職棒查詢'
+current_data = cpbl_datasource.lastest_datetime_data()
+
+current_df = pd.DataFrame(current_data,
+                          columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
+
+#current_df = current_df.reset_index()
 
 
-#dash.html的layout，不適合複雜的html結構
+#layout
 dash2.layout = html.Div(
     [
         dbc.Container([
@@ -28,17 +28,17 @@ dash2.layout = html.Div(
             html.Div([
                 html.Div([
                     html.Div([
-                                dbc.Label("站點名稱"),
+                                dbc.Label("球員查詢"),
                                 dbc.Input(
-                                placeholder="請輸入站點名稱", 
+                                placeholder="請輸入球員姓名", 
                                 type="text",
                                 id='input_value'),                                
                     ])
         
                 ],className="col"),
                 html.Div([
-                    html.Button('確定', 
-                                id='submit-val',
+                    html.Button(children='查詢', 
+                                id='btn',
                                 className="btn btn-primary",)
                         ],className="col"),
             ],
@@ -48,26 +48,39 @@ dash2.layout = html.Div(
                 html.Div([
                     dash_table.DataTable(
                         id='main_table',
-                        #data=lastest_df1.to_dict('records'),
-                        #columns=[{'id':column,'name':column} for column in lastest_df1.columns],
                         page_size=20,
-                        style_table={'height': '300px', 'overflowY': 'auto'},
+                        style_table={'height': '400px', 'overflowY': 'auto'},
                         fixed_rows={'headers': True},
                         style_cell_conditional=[
-                                {   'if': {'column_id': 'index'},
-                                 'width': '5%'
-                                },
-                                {   'if': {'column_id': '站點名稱'},
-                                 'width': '25%'},
-                                {   'if': {'column_id': '總數'},
+                                {   'if': {'column_id': '年份'},
                                  'width': '5%'},
-                                {   'if': {'column_id': '可借'},
+                                {   'if': {'column_id': '所屬球隊'},
                                  'width': '5%'},
-                                {   'if': {'column_id': '可還'},
+                                {   'if': {'column_id': '球員編號'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '球員姓名'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '出場數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '先發次數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '中繼次數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '勝場數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '敗場數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '三振數'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '自責分'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '奪三振率'},
+                                 'width': '5%'},
+                                {   'if': {'column_id': '防禦率'},
                                  'width': '5%'},
                         ],
-                        row_selectable="single", #新增可點選的欄位，推定一次點一個欄位
-                        selected_rows=[]         #預設一開始不要點選，要的話可以在[]中新增預設索引值
+                        row_selectable="single", 
+                        selected_rows=[],
                     ),
                 ],className="col text-center")
             ],
@@ -84,33 +97,36 @@ dash2.layout = html.Div(
     className="container-lg"
     )
 
-#回傳查詢的確定按鈕被按了幾次
+#回傳查詢的確定按鈕被按了幾次   
 @callback(
     [Output('main_table','data'), Output('main_table', 'column'), Output('main_table', 'selected_rows')],
-    [Input('submit-val','n_clicks')],
-    [State('input_value','value')]
+    [Input('btn','n_clicks')],
+    [State('input_value','value')],
 )
 def clickBtn(n_clicks:None | int, inputValue:str):
-    global current__df
+    global current_df
+    print('clickbtn判斷')
     if n_clicks is not None:
+        print('clickbtn判斷')
+        #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
-        searchData:list[tuple] = datasource.search_sitename(inputValue)
-        current__df = pd.DataFrame(searchData,columns=['站點名稱','更新時間','行政區','地址','總數','可借','可還'])
-        print(searchData)
-        current__df = current__df.reset_index()
-        current__df['站點名稱'] = current__df['站點名稱'].map(lambda name:name[11:])
+        searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
+        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
+        #current_df = current_df.reset_index()
+        #print(searchData)
         print('按確定')
-        return current__df.to_dict('records'),[{'id':column,'name':column} for column in current__df],[]
+        return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
-    print('第一次啟動')
-    current_data = datasource.lastest_datetime_data()
-    current_df = pd.DataFrame(current_data,columns=['站點名稱','更新時間','行政區','地址','總數','可借','可還'])
-    current__df = current_df.reset_index()
-    current__df['站點名稱'] = current__df['站點名稱'].map(lambda name:name[11:])
+    
+    else:
+        print('第一次啟動')
+        current_data = cpbl_datasource.lastest_datetime_data()
+        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
+        #current_df = current_df.reset_index()
 
-    return current__df.to_dict('records'), [{'id':column,'name':column} for column in current__df.columns],[]   
+        return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
 
 
 @callback(
@@ -120,12 +136,13 @@ def clickBtn(n_clicks:None | int, inputValue:str):
 
 #抓出選擇的欄位內容
 def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
+        global current_df
         #取得一個站點，series
         #def可以取得py檔的文件變數
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
-              oneSite:pd.DataFrame = current__df.iloc[[selected_rows[0]]]
-              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite.to_dict('records'), [{"name": i, "id": i} for i in oneSite.columns])
+              oneSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite.to_dict('records'), [{'id': column, 'name': column} for column in current_df.columns])
 
               return oneTable
         
