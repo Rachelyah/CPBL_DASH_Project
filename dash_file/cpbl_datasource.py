@@ -1,6 +1,7 @@
 import requests
 import psycopg2
-import password as pw
+#import password as pw
+from . import password as pw
 import csv
 
 def __open_cpbl_data() ->list[dict]:
