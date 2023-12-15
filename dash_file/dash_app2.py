@@ -179,16 +179,22 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
 
             #畫圖
 
+            # 假設你已經計算了奪三振率和防禦率的平均值
+            average_strikeout_rate = 7.0
+            average_era = 2.5
             
             fig = {
-            'data': [
-                {'x': ['奪三振率', '防禦率'], 'y': [float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0])], 'type': 'bar', 'name': 'Stats'}
-            ],
+            'data':[
+            {'x': ['奪三振率', '防禦率'], 'y': [float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0])],   'type': 'bar', 'name': 'Stats', 'marker': {'color': ['blue', 'green']}},  # 設定長條圖顏色
+             {'x': ['奪三振率'], 'y': [average_strikeout_rate],
+         'mode': 'lines', 'name': '奪三振率平均', 'line': {'dash': 'dash', 'color': 'red'}},  # 設定奪三振率平均線
+        {'x': ['防禦率'], 'y': [average_era],
+         'mode': 'lines', 'name': '防禦率平均', 'line': {'dash': 'dash', 'color': 'purple'}}  # 設定防禦率平均線
             'layout': {
-                'title': '奪三振率和防禦率',
-                'xaxis': {'title': '指標'},
-                'yaxis': {'title': '數值'}
-                }
+            'title': '奪三振率和防禦率',
+            'xaxis': {'title': oneSite_df['球員姓名'].values[0]},
+            'yaxis': {'title': '數值'}
+            }
             }
             print('fig已完成')
             return fig
