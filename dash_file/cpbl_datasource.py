@@ -172,7 +172,9 @@ def search_player_by_id(word:int) -> list[tuple]:
     背號, 
     投打習慣, 
     身高體重, 
-    生日
+    生日,
+    奪三振率,
+    防禦率
     FROM cpbl_pitchings
     WHERE 球員編號 = %s
         '''

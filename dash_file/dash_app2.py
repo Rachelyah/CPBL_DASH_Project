@@ -1,7 +1,11 @@
 from dash import Dash, html, dash_table, callback, Input, Output, dcc, State
+import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
+import os
+
 
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 dash2.title='中華職棒查詢'
@@ -72,15 +76,18 @@ dash2.layout = html.Div(
             className="row",
             style={"paddingTop":'0.5rem'}),
             html.Div([
-                html.Div(children="",className="col",id='showMessage')
+                html.Div(className="col",id='showMessage'),
             ],
             className="row",
             style={"paddingTop":'2rem'}),
             html.Div([
-                html.Div(children='球員資料',id='info')
-                
+                dcc.Graph(id='info'),
+            html.Div([
+                html.H1("照片"),
+            ])
+            
             ],
-            className='info',
+            className='in',
             style={'color':'red'}
                      )
             
@@ -132,17 +139,49 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
         #def可以取得py檔的文件變數
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
-              idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
-              player_id = int(idSite['球員編號'])
-              rows = cpbl_datasource.search_player_by_id(player_id)
-              print(f'回來了{rows}')
+            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            player_id = int(idSite['球員編號'].iloc[0])
+            rows = cpbl_datasource.search_player_by_id(player_id)
+            print(f'回來了{rows}')
               
-              oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日'])
+            oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
               
-              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
-              print(oneSite_df)
-              print(oneTable)
+            oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
+            #print(oneSite_df)
+            #print(oneTable)
+            
 
-              return oneTable
+            return oneTable
         
         return None
+
+
+#更新圖表
+@callback(
+    Output('info', 'figure'),
+    Input('main_table','selected_rows')
+)
+
+def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
+        global current_df
+        #def可以取得py檔的文件變數
+        if len(selected_rows) != 0:
+              #宣告變數後面加上資料型別(type hint)
+            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            player_id = int(idSite['球員編號'].iloc[0])
+            print(f"Player ID: {player_id}")
+            
+            rows = cpbl_datasource.search_player_by_id(player_id)
+            oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
+              
+            fig = px.bar(
+            idSite,
+            x='球員姓名',
+            y=['奪三振率', '防禦率'],
+            barmode='group',
+            title='奪三振率和防禦率')
+            
+            if fig is not None:
+                return fig
+        
+        return px.bar()
