@@ -118,9 +118,7 @@ def lastest_datetime_data()->list[tuple]:
         勝場數, 
         敗場數, 
         三振數, 
-        自責分, 
-        奪三振率, 
-        防禦率 
+        自責分
         from cpbl_pitchings
     '''
     cursor.execute(sql)
@@ -139,12 +137,48 @@ def search_sitename(word:str) -> list[tuple]:
                             port="5432")
     cursor = conn.cursor()
     sql = '''
-    SELECT *
+    SELECT 
+    年份, 
+    所屬球隊, 
+    球員編號, 
+    球員姓名, 
+    出場數, 
+    先發次數, 
+    中繼次數, 
+    勝場數, 
+    敗場數, 
+    三振數, 
+    自責分
     FROM cpbl_pitchings
     WHERE 球員姓名 LIKE %s
         '''
     cursor.execute(sql,[f'%{word}%'])
     rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+def search_player_by_id(word:int) -> list[tuple]:
+    conn = psycopg2.connect(database=pw.DATABASE,
+                            user=pw.USER, 
+                            password=pw.PASSWORD,
+                            host=pw.HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    SELECT 
+    所屬球隊, 
+    球員姓名, 
+    背號, 
+    投打習慣, 
+    身高體重, 
+    生日
+    FROM cpbl_pitchings
+    WHERE 球員編號 = %s
+        '''
+    cursor.execute(sql,(word,))
+    rows = cursor.fetchall()
+    print(f'查到了{rows}')
     cursor.close()
     conn.close()
     return rows

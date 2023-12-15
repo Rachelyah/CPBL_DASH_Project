@@ -8,10 +8,7 @@ dash2.title='中華職棒查詢'
 current_data = cpbl_datasource.lastest_datetime_data()
 
 current_df = pd.DataFrame(current_data,
-                          columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
-
-#current_df = current_df.reset_index()
-
+                          columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
 dash2.layout = html.Div(
@@ -48,39 +45,27 @@ dash2.layout = html.Div(
                 html.Div([
                     dash_table.DataTable(
                         id='main_table',
-                        page_size=20,
-                        style_table={'height': '400px', 'overflowY': 'auto'},
+                        page_size=10,
+                        style_table={'height': '500px','width':'1200px', 'overflowY': 'auto','textOverflow': 'ellipsis'},
                         fixed_rows={'headers': True},
-                        style_cell_conditional=[
-                                {   'if': {'column_id': '年份'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '所屬球隊'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '球員編號'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '球員姓名'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '出場數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '先發次數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '中繼次數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '勝場數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '敗場數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '三振數'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '自責分'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '奪三振率'},
-                                 'width': '5%'},
-                                {   'if': {'column_id': '防禦率'},
-                                 'width': '5%'},
-                        ],
-                        row_selectable="single", 
+                        row_selectable='single',
                         selected_rows=[],
+                        style_cell_conditional=[
+                                {   'if': {'column': 'selected_rows'}, 'width': '1px'},
+                                {   'if': {'column_id': '年份'},'width': '15%'},
+                                {   'if': {'column_id': '所屬球隊'},'width': '15%'},
+                                {   'if': {'column_id': '球員編號'},'width': '15%'},
+                                {   'if': {'column_id': '球員姓名'},'width': '15%'},
+                                {   'if': {'column_id': '出場數'},'width': '5%'},
+                                {   'if': {'column_id': '先發次數'},'width': '5%'},
+                                {   'if': {'column_id': '中繼次數'},'width': '5%'},
+                                {   'if': {'column_id': '勝場數'},'width': '5%'},
+                                {   'if': {'column_id': '敗場數'},'width': '5%'},
+                                {   'if': {'column_id': '三振數'},'width': '5%'},
+                                {   'if': {'column_id': '自責分'},'width': '5%'},
+
+                        ],
+
                     ),
                 ],className="col text-center")
             ],
@@ -90,7 +75,15 @@ dash2.layout = html.Div(
                 html.Div(children="",className="col",id='showMessage')
             ],
             className="row",
-            style={"paddingTop":'2rem'})
+            style={"paddingTop":'2rem'}),
+            html.Div([
+                html.Div(children='球員資料',id='info')
+                
+            ],
+            className='info',
+            style={'color':'red'}
+                     )
+            
 
         ])
     ],
@@ -99,7 +92,7 @@ dash2.layout = html.Div(
 
 #回傳查詢的確定按鈕被按了幾次   
 @callback(
-    [Output('main_table','data'), Output('main_table', 'column'), Output('main_table', 'selected_rows')],
+    [Output('main_table','data'), Output('main_table', 'columns'), Output('main_table', 'selected_rows')],
     [Input('btn','n_clicks')],
     [State('input_value','value')],
 )
@@ -111,24 +104,23 @@ def clickBtn(n_clicks:None | int, inputValue:str):
         #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
-        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
-        #current_df = current_df.reset_index()
+        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
         #print(searchData)
         print('按確定')
         return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
-    
     else:
         print('第一次啟動')
         current_data = cpbl_datasource.lastest_datetime_data()
-        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分', '奪三振率', '防禦率'])
+        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
         #current_df = current_df.reset_index()
 
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
 
 
+#==========下方顯示球員資料欄位=================
 @callback(
     Output('showMessage','children'),
     Input('main_table','selected_rows')
@@ -137,12 +129,19 @@ def clickBtn(n_clicks:None | int, inputValue:str):
 #抓出選擇的欄位內容
 def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
         global current_df
-        #取得一個站點，series
         #def可以取得py檔的文件變數
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
-              oneSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
-              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite.to_dict('records'), [{'id': column, 'name': column} for column in current_df.columns])
+              idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+              player_id = int(idSite['球員編號'])
+              rows = cpbl_datasource.search_player_by_id(player_id)
+              print(f'回來了{rows}')
+              
+              oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日'])
+              
+              oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
+              print(oneSite_df)
+              print(oneTable)
 
               return oneTable
         
