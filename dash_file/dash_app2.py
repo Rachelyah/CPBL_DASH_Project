@@ -5,6 +5,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
 import os
+import base64
 
 
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -85,6 +86,7 @@ dash2.layout = html.Div(
                 dcc.Graph(id='info'),
             html.Div([
                 html.H1("照片"),
+                html.Img(id='photo', width="300", height="400", className="img_class")
             ])
             
             ],
@@ -200,8 +202,39 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
                     'bargap': 0.5  # 設定長條圖之間的間隔
                 }
             }
-
-        print('fig已完成')
+            print('fig已完成')
+            return fig
         return fig
 
+@callback(
+    Output('photo', 'src'),
+    Input('main_table','selected_rows')
+)
+
+def update_photo(selected_rows:list[int]):
+    global current_df
+        #def可以取得py檔的文件變數
+    if len(selected_rows) != 0:
+              #宣告變數後面加上資料型別(type hint)
+            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            player_id = int(idSite['球員編號'].iloc[0])
+            print(f"Player ID: {player_id}")
+            
+            rows = cpbl_datasource.search_player_by_id(player_id)
+            oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
+
+            player_photo = oneSite_df['球員姓名']
+            print('球員姓名',player_photo)
+
+            # 設定圖片檔案的路徑
+            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/{player_photo}.jpg')
+
+            # 讀取圖片檔案，轉換成 base64 編碼
+            with open(imgfile, "rb") as image_file:
+                img_data = base64.b64encode(image_file.read())
+                img_data = img_data.decode()
+                img_data = "{}{}".format("data:image/jpg;base64, ", img_data)
+
+            print('照片好了')
         
+            return img_data
