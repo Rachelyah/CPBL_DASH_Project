@@ -174,29 +174,34 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
             
             rows = cpbl_datasource.search_player_by_id(player_id)
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
-            
-
+        
 
             #畫圖
 
             # 假設你已經計算了奪三振率和防禦率的平均值
             average_strikeout_rate = 7.0
             average_era = 2.5
-            
+
+            # 計算 y 軸的範圍
+            y_min = min(float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0]), average_strikeout_rate, average_era) - 1
+            y_max = max(float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0]), average_strikeout_rate, average_era) + 1
+
             fig = {
-            'data':[
-            {'x': ['奪三振率', '防禦率'], 'y': [float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0])],   'type': 'bar', 'name': 'Stats', 'marker': {'color': ['blue', 'green']}},  # 設定長條圖顏色
-             {'x': ['奪三振率'], 'y': [average_strikeout_rate],
-         'mode': 'lines', 'name': '奪三振率平均', 'line': {'dash': 'dash', 'color': 'red'}},  # 設定奪三振率平均線
-        {'x': ['防禦率'], 'y': [average_era],
-         'mode': 'lines', 'name': '防禦率平均', 'line': {'dash': 'dash', 'color': 'purple'}}  # 設定防禦率平均線
-            'layout': {
-            'title': '奪三振率和防禦率',
-            'xaxis': {'title': oneSite_df['球員姓名'].values[0]},
-            'yaxis': {'title': '數值'}
+                'data': [
+                    {'x': ['奪三振率'], 'y': [float(oneSite_df['奪三振率'].values[0])], 'type': 'bar', 'name': '奪三振率', 'marker': {'color': 'blue'}},  # 設定奪三振率的長條圖顏色
+                    {'x': ['奪三振率'], 'y': [average_strikeout_rate], 'mode': 'lines', 'name': '奪三振率平均', 'line': {'dash': 'dash', 'color': 'red', 'width': 3}},  # 設定奪三振率平均線的粗細
+                    {'x': ['防禦率'], 'y': [float(oneSite_df['防禦率'].values[0])], 'type': 'bar', 'name': '防禦率', 'marker': {'color': 'green'}},  # 設定防禦率的長條圖顏色
+                    {'x': ['防禦率'], 'y': [average_era], 'mode': 'lines', 'name': '防禦率平均', 'line': {'dash': 'dash', 'color': 'purple', 'width': 3}}  # 設定防禦率平均線的粗細
+                ],
+                'layout': {
+                    'title': '奪三振率和防禦率',
+                    'xaxis': {'title': oneSite_df['球員姓名'].values[0]},
+                    'yaxis': {'title': '數值', 'range': [y_min, y_max]},  # 設定 y 軸的範圍
+                    'bargap': 0.5  # 設定長條圖之間的間隔
+                }
             }
-            }
-            print('fig已完成')
-            return fig
-    
+
+        print('fig已完成')
         return fig
+
+        
