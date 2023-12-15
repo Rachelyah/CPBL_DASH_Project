@@ -10,9 +10,10 @@ import os
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 dash2.title='中華職棒查詢'
 current_data = cpbl_datasource.lastest_datetime_data()
+print(f'怪怪的{current_data}')
 
 current_df = pd.DataFrame(current_data,
-                          columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+                          columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
 dash2.layout = html.Div(
@@ -111,7 +112,7 @@ def clickBtn(n_clicks:None | int, inputValue:str):
         #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
-        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
         #print(searchData)
         print('按確定')
         return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
@@ -121,7 +122,7 @@ def clickBtn(n_clicks:None | int, inputValue:str):
     else:
         print('第一次啟動')
         current_data = cpbl_datasource.lastest_datetime_data()
-        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '出場數', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
         #current_df = current_df.reset_index()
 
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
@@ -173,15 +174,23 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
             
             rows = cpbl_datasource.search_player_by_id(player_id)
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
-              
-            fig = px.bar(
-            idSite,
-            x='球員姓名',
-            y=['奪三振率', '防禦率'],
-            barmode='group',
-            title='奪三振率和防禦率')
             
-            if fig is not None:
-                return fig
-        
-        return px.bar()
+
+
+            #畫圖
+
+            
+            fig = {
+            'data': [
+                {'x': ['奪三振率', '防禦率'], 'y': [float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0])], 'type': 'bar', 'name': 'Stats'}
+            ],
+            'layout': {
+                'title': '奪三振率和防禦率',
+                'xaxis': {'title': '指標'},
+                'yaxis': {'title': '數值'}
+                }
+            }
+            print('fig已完成')
+            return fig
+    
+        return fig

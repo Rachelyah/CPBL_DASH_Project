@@ -112,13 +112,12 @@ def lastest_datetime_data()->list[tuple]:
         所屬球隊, 
         球員編號, 
         球員姓名, 
-        出場數, 
         先發次數, 
         中繼次數, 
         勝場數, 
         敗場數, 
         三振數, 
-        自責分
+        自責分 
         from cpbl_pitchings
     '''
     cursor.execute(sql)
