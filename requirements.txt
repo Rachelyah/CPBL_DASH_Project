@@ -6,3 +6,4 @@ pandas
 dash_bootstrap_components
 psycopg2
 nbformat
+matplotlib

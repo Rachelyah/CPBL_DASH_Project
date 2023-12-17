@@ -6,12 +6,13 @@ import dash_bootstrap_components as dbc
 from . import cpbl_datasource
 import os
 import base64
+import matplotlib as plt
 
 
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 dash2.title='中華職棒查詢'
 current_data = cpbl_datasource.lastest_datetime_data()
-print(f'怪怪的{current_data}')
+#print(f'怪怪的{current_data}')
 
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
@@ -150,10 +151,7 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
               
             oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
-            #print(oneSite_df)
-            #print(oneTable)
             
-
             return oneTable
         
         return None
@@ -179,33 +177,55 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
         
 
             #畫圖
+            # 計算平均值
+            k9_rea = cpbl_datasource.avg_k9_rea()
+            k9_rea_df = pd.DataFrame(k9_rea,columns=['所屬球隊', '球員姓名', '背號', '投打習慣','身高體重', '生日','奪三振率','防禦率'])
 
-            # 假設你已經計算了奪三振率和防禦率的平均值
-            average_strikeout_rate = 7.0
-            average_era = 2.5
+            average_k9 = k9_rea_df['奪三振率'].mean()
+            average_era = k9_rea_df['防禦率'].mean()
 
-            # 計算 y 軸的範圍
-            y_min = min(float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0]), average_strikeout_rate, average_era) - 1
-            y_max = max(float(oneSite_df['奪三振率'].values[0]), float(oneSite_df['防禦率'].values[0]), average_strikeout_rate, average_era) + 1
+            # 建立長條圖
+            fig = px.bar(oneSite_df,x='球員姓名',y=['奪三振率','防禦率'], barmode='group')
 
-            fig = {
-                'data': [
-                    {'x': ['奪三振率'], 'y': [float(oneSite_df['奪三振率'].values[0])], 'type': 'bar', 'name': '奪三振率', 'marker': {'color': 'blue'}},  # 設定奪三振率的長條圖顏色
-                    {'x': ['奪三振率'], 'y': [average_strikeout_rate], 'mode': 'lines', 'name': '奪三振率平均', 'line': {'dash': 'dash', 'color': 'red', 'width': 3}},  # 設定奪三振率平均線的粗細
-                    {'x': ['防禦率'], 'y': [float(oneSite_df['防禦率'].values[0])], 'type': 'bar', 'name': '防禦率', 'marker': {'color': 'green'}},  # 設定防禦率的長條圖顏色
-                    {'x': ['防禦率'], 'y': [average_era], 'mode': 'lines', 'name': '防禦率平均', 'line': {'dash': 'dash', 'color': 'purple', 'width': 3}}  # 設定防禦率平均線的粗細
-                ],
-                'layout': {
-                    'title': '奪三振率和防禦率',
-                    'xaxis': {'title': oneSite_df['球員姓名'].values[0]},
-                    'yaxis': {'title': '數值', 'range': [y_min, y_max]},  # 設定 y 軸的範圍
-                    'bargap': 0.5  # 設定長條圖之間的間隔
-                }
-            }
+            # 加入第一條虛線表示平均值
+            fig.add_shape(
+                type='line',
+                x0=-0.5,
+                x1=len(oneSite_df) - 0.5,
+                y0=average_k9,
+                y1=average_k9,
+                line=dict(color='red', dash='dash')
+            )
+
+            # 加入第二條虛線表示平均值
+            fig.add_shape(
+                type='line',
+                x0=-0.5,
+                x1=len(oneSite_df) - 0.5,
+                y0=average_era,  # 設定第二條虛線的高度
+                y1=average_era,  # 設定第二條虛線的高度
+                line=dict(color='blue', dash='dash')
+)
+
+            # 設定圖表佈局
+            fig.update_layout(
+                legend=dict(
+                title='',  # 如果需要標題的話
+                orientation='h',  # 水平方向的圖例
+                yanchor='bottom',
+                y=1.02,  # 調整圖例的垂直位置
+                xanchor='right',
+                x=1  # 調整圖例的水平位置
+            ),
+                title='奪三振率與防禦率',
+                bargap=0.2,
+                yaxis_range=[0,10])
+                      
             print('fig已完成')
             return fig
         return fig
 
+#顯示照片
 @callback(
     Output('photo', 'src'),
     Input('main_table','selected_rows')
@@ -216,18 +236,18 @@ def update_photo(selected_rows:list[int]):
         #def可以取得py檔的文件變數
     if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
+            print('update photo開始')
             idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
-            print(f"Player ID: {player_id}")
+            #print(f"Player ID: {player_id}")
             
             rows = cpbl_datasource.search_player_by_id(player_id)
-            oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
-
-            player_photo = oneSite_df['球員姓名']
-            print('球員姓名',player_photo)
-
+            print(f'順風:{rows}')
+            print(f'資料型別:{type(rows)}')
+            names = rows[0][1]
+            print(f'姓名叫出{names}')
             # 設定圖片檔案的路徑
-            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/{player_photo}.jpg')
+            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
 
             # 讀取圖片檔案，轉換成 base64 編碼
             with open(imgfile, "rb") as image_file:
