@@ -79,6 +79,7 @@ dash2.layout = html.Div(
             className="row",
             style={"paddingTop":'0.5rem'}),
             html.Div([
+                html.H3(children='球員資料'),
                 html.Div(className="col",id='showMessage'),
             ],
             className="row",
@@ -101,7 +102,7 @@ dash2.layout = html.Div(
     className="container-lg"
     )
 
-#回傳查詢的確定按鈕被按了幾次   
+#按下查詢按鈕，啟動查詢＆回傳資料  
 @callback(
     [Output('main_table','data'), Output('main_table', 'columns'), Output('main_table', 'selected_rows')],
     [Input('btn','n_clicks')],
@@ -109,7 +110,6 @@ dash2.layout = html.Div(
 )
 def clickBtn(n_clicks:None | int, inputValue:str):
     global current_df
-    print('clickbtn判斷')
     if n_clicks is not None:
         print('clickbtn判斷')
         #print(inputValue)
@@ -131,7 +131,7 @@ def clickBtn(n_clicks:None | int, inputValue:str):
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
 
 
-#==========下方顯示球員資料欄位=================
+#============下方顯示球員資料欄位=================
 @callback(
     Output('showMessage','children'),
     Input('main_table','selected_rows')
@@ -149,7 +149,7 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             print(f'回來了{rows}')
               
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
-              
+
             oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
             
             return oneTable
@@ -223,7 +223,8 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
                       
             print('fig已完成')
             return fig
-        return fig
+        
+        else: return fig
 
 #顯示照片
 @callback(

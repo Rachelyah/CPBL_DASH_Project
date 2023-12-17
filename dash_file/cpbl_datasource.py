@@ -141,7 +141,6 @@ def search_sitename(word:str) -> list[tuple]:
     所屬球隊, 
     球員編號, 
     球員姓名, 
-    出場數, 
     先發次數, 
     中繼次數, 
     勝場數, 
