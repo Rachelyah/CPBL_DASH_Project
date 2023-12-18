@@ -78,19 +78,20 @@ dash2.layout = html.Div(
             ],
             className="row",
             style={"paddingTop":'0.5rem'}),
+
+            
+
+
             html.Div([
                 html.H3(children='球員資料'),
-                html.Div(className="col",id='showMessage'),
+                html.Div(className="col",id='showMessage',style={'width':'300px','height': '550px','margin': '0'}),
+                html.Img(id='photo',style={'width':'20%', 'height':'20%','padding':'20px','margin': '0'})
+                
             ],
             className="row",
-            style={"paddingTop":'2rem'}),
+            style={"paddingTop":'2rem','margin': '0'}),
             html.Div([
-                dcc.Graph(id='info'),
-            html.Div([
-                html.H1("照片"),
-                html.Img(id='photo', width="300", height="400", className="img_class")
-            ])
-            
+                dcc.Graph(id='info')
             ],
             className='in',
             style={'color':'red'}
@@ -150,7 +151,15 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
               
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
 
-            oneTable:dash_table.DataTable = dash_table.DataTable(oneSite_df.to_dict('records'), [{'id': column, 'name': column} for column in oneSite_df.columns])
+            df_transposed = oneSite_df.transpose()
+            df_display = pd.DataFrame({
+            '欄位名稱': df_transposed.index,
+            '資料': df_transposed.iloc[:, 0].values})
+
+            oneTable:dash_table.DataTable = dash_table.DataTable(columns=[{'name': '欄位名稱', 'id': '欄位名稱'},
+            {'name': '資料', 'id': '資料'}],
+            data=df_display.to_dict('records'),
+            style_table={'width':'300px','height': '550px', 'overflowY': 'auto'},style_header={'fontWeight': 'bold'})
             
             return oneTable
         
