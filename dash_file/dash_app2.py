@@ -84,8 +84,8 @@ dash2.layout = html.Div(
 
             html.Div([
                 html.H3(children='球員資料'),
-                html.Div(className="col",id='showMessage',style={'width':'300px','height': '550px','margin': '0'}),
-                html.Img(id='photo',style={'width':'20%', 'height':'20%','padding':'20px','margin': '0'})
+                html.Div(className="col",id='showMessage', ),
+                html.Img(id='photo',style={'width':'19%', 'height':'19%','padding':'20px','margin': '0'})
                 
             ],
             className="row",
@@ -94,8 +94,11 @@ dash2.layout = html.Div(
                 dcc.Graph(id='info')
             ],
             className='in',
-            style={'color':'red'}
-                     )
+            style={'color':'red'},         
+                     ),
+            html.Div(id="table-1kze6r55hrr",
+            className="dash-table-container",
+            style={"display": "none"})
             
 
         ])
@@ -159,7 +162,7 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             oneTable:dash_table.DataTable = dash_table.DataTable(columns=[{'name': '欄位名稱', 'id': '欄位名稱'},
             {'name': '資料', 'id': '資料'}],
             data=df_display.to_dict('records'),
-            style_table={'width':'300px','height': '550px', 'overflowY': 'auto'},style_header={'fontWeight': 'bold'})
+            style_table={'margin': 0, 'padding-top':'20px', 'width': '100%'},style_header={'fontWeight': 'bold'})
             
             return oneTable
         
@@ -257,7 +260,7 @@ def update_photo(selected_rows:list[int]):
             names = rows[0][1]
             print(f'姓名叫出{names}')
             # 設定圖片檔案的路徑
-            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
+            imgfile = (f'/workspaces/CPBL_DASH_Project-1/dash_file/assets/img/{names}.jpg')
 
             # 讀取圖片檔案，轉換成 base64 編碼
             with open(imgfile, "rb") as image_file:
