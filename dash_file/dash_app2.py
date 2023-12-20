@@ -83,17 +83,16 @@ dash2.layout = html.Div(
             html.Div([
                 html.Div([
                     html.Div([
-                        html.Img(id='photo',className="",style={'width':'200px', 'height':'270px','margin': '0', 'padding':'0'}),
+                        html.Img(id='photo',className="",style={'width':'200px', 'height':'270px','margin': '0', 'padding':'0' , 'text-align':'justify'}),
                         ],className="col"),
                     html.Div(
                         className="col",id='showMessage'),
-                ],className="row",style={'margin': '20px', 'text-align':'center'})],
-            className="container text-center",style={'width':'1200px','margin-left': '0', 'text-align':'center',}),
-            
-            html.Div([
-                dcc.Graph(id='game_pie')],
-                className='show',
-                style={'paddingTop':'2rem'}),
+                    html.Div([
+                        dcc.Graph(id='game_pie')],
+                        className='col',
+                        style={'paddingTop':'2rem'}),
+                ],className="row align-items-center",style={'margin': '20px', 'text-align':'center'})],
+            className="container text-center",style={'width':'100%','margin-left': '0', 'text-align':'center',}),
             
             html.Div([
                 dcc.Graph(id='info')],
@@ -207,6 +206,8 @@ def game_pie(selected_rows:list[int]):
         
         game_pie = px.pie(new_df, values='出場數', names='出場類型', title='先發&中繼佔比',hover_data=['出場數'])
         print('圓餅圖完成')
+        
+        
        
         return game_pie
     return game_pie
@@ -368,7 +369,9 @@ def game_out(selected_rows:list[int]):
                 hovertemplate=hovertemplate
             ))
 
-            fig.update_layout(margin=dict(t=10, b=10, r=10, l=10))
+            fig.update_layout(margin=dict(t=10, b=10, r=10, l=10),
+                              font=dict(size=18))
+            
 
             return fig   
     return default_fig
