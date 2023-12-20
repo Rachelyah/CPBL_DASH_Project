@@ -8,7 +8,6 @@ import os
 import base64
 import matplotlib as plt
 
-
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 dash2.title='中華職棒查詢'
 current_data = cpbl_datasource.lastest_datetime_data()
@@ -88,29 +87,27 @@ dash2.layout = html.Div(
                         ],className="col"),
                     html.Div(
                         className="col",id='showMessage'),
-                    html.Div(
-                        html.Div(id='game',className="col")
-                        ,style={'width':'200px', 'height':'270px','margin': '0', 'padding':'0','background-color':'blue'}),
-                ],className="row",style={'margin': '20px', 'text-align':'center','background-color':'yellow'})],
+                    
+                ],className="row",style={'margin': '20px', 'text-align':'center'})],
             className="container text-center",style={'width':'1200px','margin-left': '0', 'text-align':'center',}),
             
             html.Div([
-                dcc.Graph(id='info')],
-                     className='in',
-                    style={'color':'red'}),
-                
+                dcc.Graph(id='game_pie')],
+                className='in',
+                style={'color':'red'}),
+            
             html.Div([
-                dcc.Graph(id='game_pie'),
-        
-            ],
-            className='in',
-            style={'color':'red'}),
+                dcc.Graph(id='info')],
+                className='in',
+                style={'color':'red'}),
             
 
         ])
     ],
     className="container-lg"
     )
+
+
 
 #按下查詢按鈕，啟動查詢＆回傳資料  
 @callback(
@@ -175,7 +172,6 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             
             return oneTable
         
-        return None
 
 #===================點擊球員資料後顯示圓餅圖======================
 @callback(
@@ -206,8 +202,10 @@ def game_pie(selected_rows:list[int]):
             new_df = pd.concat([new_df, category_df], ignore_index=True)
         
         game_pie = px.pie(new_df, values='出場數', names='出場類型', title='先發&中繼佔比',hover_data=['出場數'])
+        print('圓餅圖完成')
        
         return game_pie
+    return game_pie
         
 
 
@@ -215,11 +213,10 @@ def game_pie(selected_rows:list[int]):
 #更新圖表
 @callback(
     Output('info', 'figure'),
-    Input('main_table','selected_rows')
+    Input('main_table','selected_rows'),
 )
 
 def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
-    fig = None
     global current_df
     #def可以取得py檔的文件變數
     if len(selected_rows) != 0:
@@ -279,7 +276,6 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
                       
         print('fig已完成')
         return fig
-        
     return fig
 
 #顯示照片
