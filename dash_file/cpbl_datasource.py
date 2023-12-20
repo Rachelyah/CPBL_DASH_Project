@@ -1,8 +1,31 @@
 import requests
 import psycopg2
 #import password as pw
-from . import password as pw
+#from . import password as pw
 import csv
+import socket
+import os
+
+myip = socket.gethostbyname(socket.gethostname())
+
+if '172.17.0.2' <= myip <= '172.17.255.255':
+    print(f'本機{myip}')
+    from . import password as rpw
+    DATABASE=rpw.DATABASE
+    USER=rpw.USER
+    PASSWORD=rpw.PASSWORD
+    HOST=rpw.HOST
+
+
+else:
+    print(f'server{myip}')
+    DATABASE=os.environ['DATABASE']
+    USER=os.environ['USER']
+    PASSWORD=os.environ['PASSWORD'] 
+    HOST=os.environ['HOST']
+
+
+
 
 def __open_cpbl_data() ->list[dict]:
 
@@ -19,10 +42,10 @@ def __open_cpbl_data() ->list[dict]:
     
 
 def __create_table(conn)->None:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")    
     cursor = conn.cursor()
     cursor.execute(
@@ -63,10 +86,10 @@ def __create_table(conn)->None:
     print("create_table成功")
 
 def __insert_data(conn,values:list[any])->None:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -84,10 +107,10 @@ def updata_render_data()->None:
     下載,並更新資料庫
     '''
     data = __open_cpbl_data()
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
         
     __create_table(conn)
@@ -99,10 +122,10 @@ def updata_render_data()->None:
 
 #呼叫最新資料
 def lastest_datetime_data()->list[tuple]:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -129,10 +152,10 @@ def lastest_datetime_data()->list[tuple]:
 
 #查詢球員姓名
 def search_sitename(word:str) -> list[tuple]:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -158,10 +181,10 @@ def search_sitename(word:str) -> list[tuple]:
 
 #查詢球員編號，回傳製作K9及era圖表
 def search_player_by_id(word:int) -> list[tuple]:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -186,10 +209,10 @@ def search_player_by_id(word:int) -> list[tuple]:
 
 #計算平均奪三振率與防禦率
 def avg_k9_rea() -> list[tuple]:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -213,10 +236,10 @@ def avg_k9_rea() -> list[tuple]:
 
 #更新先發中繼圓餅圖
 def search_player_game_pie(word:int) -> list[tuple]:
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432")
     cursor = conn.cursor()
     sql = '''
@@ -256,10 +279,10 @@ def team_selected(event, selectVar):
 
 def search_by_team(word:str):
     print(word) #使用者輸入的文字
-    conn = psycopg2.connect(database=pw.DATABASE,
-                            user=pw.USER, 
-                            password=pw.PASSWORD,
-                            host=pw.HOST, 
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
                             port="5432") 
     cursor = conn.cursor() 
     sql = '''
