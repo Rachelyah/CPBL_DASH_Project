@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block head %} <!--裡面的內容是可以供其他頁面修改的-->
-    <link rel="stylesheet" href="{{url_for('static', filename = '/css/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename = 'css/bootstrap.min.css')}}">
     <title>{% block title %} {% endblock %}Flask_Dash</title>
     {% endblock %}
 </head>
@@ -21,7 +21,7 @@
             {% endblock %}
         </div>
     {% endblock %}
-        <script src="{{url_for('static', filename = '/js/bootstrap.bundle.js')}}"></script>
+        <script src="{{url_for('static', filename = 'js/bootstrap.bundle.js')}}"></script>
 </body>
 
 </html>

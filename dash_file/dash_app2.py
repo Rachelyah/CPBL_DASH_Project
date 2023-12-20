@@ -4,14 +4,12 @@ import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
-import os
 import base64
-import matplotlib as plt
+import dash
 
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 dash2.title='中華職棒查詢'
 current_data = cpbl_datasource.lastest_datetime_data()
-#print(f'怪怪的{current_data}')
 
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
@@ -31,14 +29,13 @@ dash2.layout = html.Div(
             html.Div([
                 html.Div([
                     html.Div([
-                                dbc.Label("球員查詢"),
-                                dbc.Input(
+                            dbc.Label("球員查詢"),
+                            dbc.Input(
                                 placeholder="請輸入球員姓名", 
                                 type="text",
-                                id='input_value'),                                
-                    ])
-        
+                                id='input_value')])
                 ],className="col"),
+                
                 html.Div([
                     html.Button(children='查詢', 
                                 id='btn',
@@ -47,6 +44,21 @@ dash2.layout = html.Div(
             ],
             className="row row-cols-auto align-items-end",
             style={"paddingTop":'2rem'}),
+
+            html.Div([
+                    dcc.Location(id='url', refresh=False),
+                    html.Div(id='output'),
+                    html.Button("按鈕跳轉到頁面 3", id='btnn',className='btn btn-primary',  style={'background-color': 'blue', 'color': 'white'}),
+                ]),
+
+            html.Div([
+               html.Button(children='樂天桃猿', id='rakuten',className='btn btn-danger btn-lg'),
+               html.Button(children='中信兄弟', id='brothers',className='btn btn-warning btn-lg'),
+               html.Button(children='味全龍', id='gragons',className='btn btn-info btn-lg'),
+               html.Button(children='富邦悍將', id='fubon',className='btn btn-primary btn-lg'),
+               html.Button(children='統一7-ELEVEn獅', id='lions',className='btn btn-lg',style={'background-color':'orange'}),
+            ],className='justify-content-center',style={"padding":'2rem'}),
+
             html.Div([
                 html.Div([
                     dash_table.DataTable(
@@ -103,14 +115,10 @@ dash2.layout = html.Div(
                 dcc.Graph(id='game_out', figure=go.Figure())],
                 className='show',
                 style={'paddingTop':'2rem'}),
-            
-
         ])
     ],
     className="container-lg"
     )
-
-
 
 #按下查詢按鈕，啟動查詢＆回傳資料  
 @callback(
@@ -118,7 +126,8 @@ dash2.layout = html.Div(
     [Input('btn','n_clicks')],
     [State('input_value','value')],
 )
-def clickBtn(n_clicks:None | int, inputValue:str):
+
+def search_clickBtn(n_clicks:None | int, inputValue:str):
     global current_df
     if n_clicks is not None:
         print('clickbtn判斷')
@@ -136,7 +145,6 @@ def clickBtn(n_clicks:None | int, inputValue:str):
         print('第一次啟動')
         current_data = cpbl_datasource.lastest_datetime_data()
         current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        #current_df = current_df.reset_index()
 
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
 
@@ -205,10 +213,7 @@ def game_pie(selected_rows:list[int]):
             new_df = pd.concat([new_df, category_df], ignore_index=True)
         
         game_pie = px.pie(new_df, values='出場數', names='出場類型', title='先發&中繼佔比',hover_data=['出場數'])
-        print('圓餅圖完成')
         
-        
-       
         return game_pie
     return game_pie
         
@@ -297,15 +302,11 @@ def update_photo(selected_rows:list[int]):
             print('update photo開始')
             idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
-            #print(f"Player ID: {player_id}")
             
             rows = cpbl_datasource.search_player_by_id(player_id)
-            print(f'順風:{rows}')
-            print(f'資料型別:{type(rows)}')
             names = rows[0][1]
-            print(f'姓名叫出{names}')
             # 設定圖片檔案的路徑
-            imgfile = (f'/workspaces/CPBL_DASH_Project-1/dash_file/assets/img/{names}.jpg')
+            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
 
             # 讀取圖片檔案，轉換成 base64 編碼
             with open(imgfile, "rb") as image_file:
@@ -375,3 +376,25 @@ def game_out(selected_rows:list[int]):
 
             return fig   
     return default_fig
+
+#=========點擊Rakuten按鈕===========================
+
+
+def rakuten_clickBtn(n_clicks):
+    if n_clicks is not None:
+        print('按鈕啟動')
+        rakuten_Data:list[tuple] = cpbl_datasource.search_by_team(word='樂天')
+        
+        rakuten_Data_df = pd.DataFrame(rakuten_Data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        print(rakuten_Data_df)
+        
+        return rakuten_Data_df.to_dict('records'),[{'id':column,'name':column} for column in rakuten_Data_df],[]  
+    
+
+@callback(
+    Output('url', 'pathname'),
+    [Input('btnn', 'n_clicks')]
+)
+def update_url(n_clicks):
+    if n_clicks:
+        return '/dash/app1/'

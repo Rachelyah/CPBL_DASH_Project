@@ -254,7 +254,7 @@ def team_selected(event, selectVar):
     print(f"隊伍選擇: {select_value}")
     return select_value
 
-def search_by_team(event,word:str):
+def search_by_team(word:str):
     print(word) #使用者輸入的文字
     conn = psycopg2.connect(database=pw.DATABASE,
                             user=pw.USER, 
@@ -263,8 +263,18 @@ def search_by_team(event,word:str):
                             port="5432") 
     cursor = conn.cursor() 
     sql = '''
-    SELECT *
-    FROM cpbl_pitchings
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+    from cpbl_pitchings
     WHERE 所屬球隊 LIKE ?
     '''
     cursor.execute(sql, [f'%{word}%'])
