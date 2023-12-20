@@ -307,14 +307,19 @@ def update_photo(selected_rows:list[int]):
             rows = cpbl_datasource.search_player_by_id(player_id)
             names = rows[0][1]
             # 設定圖片檔案的路徑
+            
+            img_folder = os.path.join(os.getcwd(),'dash_file' ,'assets', 'img')
+            
             # 使用絕對路徑
-            img_path = os.path.join('assets', 'img', f'{names}.jpg')
-                                   
-            #imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
+            imgfile = f'{names}.jpg'
+
+            # 組合路徑
+            img_path = os.path.join(img_folder, imgfile)
+                                  
 
             # 讀取圖片檔案，轉換成 base64 編碼
-            with open(img_path, "rb") as img_path:
-                img_data = base64.b64encode(img_path.read())
+            with open(img_path, "rb") as img_file:
+                img_data = base64.b64encode(img_file.read())
                 img_data = img_data.decode()
                 img_data = "{}{}".format("data:image/jpg;base64, ", img_data)
 
