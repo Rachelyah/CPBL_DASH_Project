@@ -53,7 +53,7 @@ dash2.layout = html.Div(
                     dash_table.DataTable(
                         id='main_table',
                         page_size=10,
-                        style_table={'height': '500px','width':'1200px', 'overflowY': 'auto','textOverflow': 'ellipsis'},
+                        style_table={'height': '500px','width':'1200px', 'overflowY': 'auto','textOverflow': 'ellipsis', 'margin':'0'},
                         fixed_rows={'headers': True},
                         row_selectable='single',
                         selected_rows=[],
@@ -81,23 +81,23 @@ dash2.layout = html.Div(
 
             
 
-
             html.Div([
-                html.Div(className="col",id='showMessage'),
                 html.Div([
-                    html.Img(id='photo',className="col",style={'width':'180px', 'height':'250px','margin': '0', 'padding':'0'}),
-                    html.Div('a',className="col",style={'width':'180px', 'height':'250px','margin': '0', 'padding':'0'})
-            ])
-                
-            ],
-            className="row row-cols-3",
-            style={'margin': '20px', 'text-align':'center'}),
+                    html.Div(
+                        className="col",id='showMessage'),
+                    html.Div([
+                        html.Img(id='photo',className="",style={'width':'200px', 'height':'280px','margin': '0', 'padding':'0'}),
+                        ],className="col"),
+                    html.Div(
+                        'a44444',className="col",style={'width':'200px', 'height':'280px','margin': '0', 'padding':'0','background-color':'blue'}),
+                ],className="row",style={'margin': '20px', 'text-align':'center','background-color':'yellow'})],
+            className="container text-center",style={'width':'1200px','margin-left': '0', 'text-align':'center',}),
+        
             html.Div([
                 dcc.Graph(id='info')
             ],
             className='in',
-            style={'color':'red'},         
-                     )
+            style={'color':'red'}),
             
 
         ])
@@ -155,16 +155,16 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
 
             df_transposed = oneSite_df.transpose()
             df_display = pd.DataFrame({
-            '欄位名稱': df_transposed.index,
-            '資料': df_transposed.iloc[:, 0].values})
+            '球員資料': df_transposed.index,
+            '內容': df_transposed.iloc[:, 0].values})
 
-            oneTable:dash_table.DataTable = dash_table.DataTable(columns=[{'name': '欄位名稱', 'id': '欄位名稱'},
-            {'name': '資料', 'id': '資料'}],
+            oneTable:dash_table.DataTable = dash_table.DataTable(columns=[{'name': '球員資料', 'id': '球員資料'},
+            {'name': '內容', 'id': '內容'}],
             data=df_display.to_dict('records'),
-            style_table={'margin': 0,'width':'500px'},style_header={'fontWeight': 'bold'},
+            style_table={'margin': 0,'height':'100%'},style_header={'fontWeight': 'bold'},
             style_cell_conditional=[
-            {'if': {'column_id': '欄位名稱'}, 'width': '5%', 'text-align': 'center', 'font-weight': 'bold'},
-            {'if': {'column_id': '資料'}, 'width': '5%', 'text-align': 'center'},])
+            {'if': {'column_id': '球員資料'}, 'width': '3%','height':'100%', 'text-align': 'center', 'font-weight': 'bold'},
+            {'if': {'column_id': '內容'}, 'width': '3%','height':'100%', 'text-align': 'center'},])
             
             return oneTable
         
@@ -262,7 +262,7 @@ def update_photo(selected_rows:list[int]):
             names = rows[0][1]
             print(f'姓名叫出{names}')
             # 設定圖片檔案的路徑
-            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
+            imgfile = (f'/workspaces/CPBL_DASH_Project-1/dash_file/assets/img/{names}.jpg')
 
             # 讀取圖片檔案，轉換成 base64 編碼
             with open(imgfile, "rb") as image_file:
