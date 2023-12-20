@@ -306,7 +306,7 @@ def update_photo(selected_rows:list[int]):
             rows = cpbl_datasource.search_player_by_id(player_id)
             names = rows[0][1]
             # 設定圖片檔案的路徑
-            imgfile = (f'/workspaces/CPBL_DASH_Project/dash_file/assets/img/{names}.jpg')
+            imgfile = (f'/workspaces/CPBL_DASH_Project/Flask_dash_web/dash_file/assets/img/{names}.jpg')
 
             # 讀取圖片檔案，轉換成 base64 編碼
             with open(imgfile, "rb") as image_file:
