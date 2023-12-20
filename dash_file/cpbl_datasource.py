@@ -98,7 +98,6 @@ def updata_render_data()->None:
     print('update成功')
 
 #呼叫最新資料
-
 def lastest_datetime_data()->list[tuple]:
     conn = psycopg2.connect(database=pw.DATABASE,
                             user=pw.USER, 
@@ -128,6 +127,7 @@ def lastest_datetime_data()->list[tuple]:
     #print(f'latest_rows:{rows}')
     return rows
 
+#查詢球員姓名
 def search_sitename(word:str) -> list[tuple]:
     conn = psycopg2.connect(database=pw.DATABASE,
                             user=pw.USER, 
@@ -156,6 +156,7 @@ def search_sitename(word:str) -> list[tuple]:
     conn.close()
     return rows
 
+#查詢球員編號，回傳製作K9及era圖表
 def search_player_by_id(word:int) -> list[tuple]:
     conn = psycopg2.connect(database=pw.DATABASE,
                             user=pw.USER, 
@@ -204,6 +205,45 @@ def avg_k9_rea() -> list[tuple]:
     FROM cpbl_pitchings
         '''
     cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+
+#更新先發中繼圓餅圖
+def search_player_game_pie(word:int) -> list[tuple]:
+    conn = psycopg2.connect(database=pw.DATABASE,
+                            user=pw.USER, 
+                            password=pw.PASSWORD,
+                            host=pw.HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    SELECT 
+    球員編號,
+    所屬球隊, 
+    球員姓名, 
+    出場數,
+    先發次數,
+    中繼次數,
+    勝場數,
+    敗場數,
+    救援成功,
+    中繼成功,
+    有效局數,
+    面對打者數,
+    被安打數,
+    被全壘打數,
+    保送數,
+    三振數,
+    自責分,
+    奪三振率,
+    防禦率
+    FROM cpbl_pitchings
+    WHERE 球員編號 = %s
+        '''
+    cursor.execute(sql,(word,))
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
