@@ -79,7 +79,7 @@ dash2.layout = html.Div(
             style={"paddingTop":'0.5rem'}),
 
             
-
+            html.H3(['球員詳細資料']),
             html.Div([
                 html.Div([
                     html.Div([
@@ -87,19 +87,23 @@ dash2.layout = html.Div(
                         ],className="col"),
                     html.Div(
                         className="col",id='showMessage'),
-                    
                 ],className="row",style={'margin': '20px', 'text-align':'center'})],
             className="container text-center",style={'width':'1200px','margin-left': '0', 'text-align':'center',}),
             
             html.Div([
                 dcc.Graph(id='game_pie')],
-                className='in',
-                style={'color':'red'}),
+                className='show',
+                style={'paddingTop':'2rem'}),
             
             html.Div([
                 dcc.Graph(id='info')],
-                className='in',
-                style={'color':'red'}),
+                className='show',
+                style={'paddingTop':'2rem'}),
+            
+            html.Div([
+                dcc.Graph(id='game_out', figure=go.Figure())],
+                className='show',
+                style={'paddingTop':'2rem'}),
             
 
         ])
@@ -278,7 +282,7 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
         return fig
     return fig
 
-#顯示照片
+#===============顯示照片========================
 @callback(
     Output('photo', 'src'),
     Input('main_table','selected_rows')
@@ -311,3 +315,60 @@ def update_photo(selected_rows:list[int]):
             print('照片好了')
         
             return img_data
+        
+#===============對戰分析========================
+@callback(
+    Output('game_out', 'figure'),
+    Input('main_table','selected_rows')
+)
+
+def game_out(selected_rows:list[int]):
+    global current_df
+    # 預設的圖表
+    default_fig = go.Figure()
+    if selected_rows:
+              #宣告變數後面加上資料型別(type hint)
+            print('update photo開始')
+            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            player_id = int(idSite['球員編號'].iloc[0])
+            
+            #去查資料抓出我要的資料
+            rows = cpbl_datasource.search_player_game_pie(player_id)
+            
+            games_df:pd.DataFrame = pd.DataFrame(rows,columns=['球員編號','所屬球隊','球員姓名', '出場數','先發次數','中繼次數','勝場數','敗場數','救援成功','中繼成功','有效局數','面對打者數','被安打數','被全壘打數','保送數','三振數','自責分','奪三振率','防禦率'])
+            
+            data ={
+                '被安打數':games_df['被安打數'].iloc[0],
+                '保送數':games_df['保送數'].iloc[0],
+                '出局數':games_df['面對打者數'].iloc[0] - games_df['被安打數'].iloc[0] - games_df['保送數'].iloc[0],
+                '接殺&滾地球出局':games_df['面對打者數'].iloc[0] - games_df['被安打數'].iloc[0] - games_df['保送數'].iloc[0]-games_df['三振數'].iloc[0],
+                '三振數':games_df['三振數'].iloc[0],
+                '全壘打數':games_df['被全壘打數'].iloc[0],
+                '安打數':games_df['被安打數'].iloc[0] - games_df['被全壘打數'].iloc[0],  
+            }
+            print(data)
+            
+            # 設置 hovertemplate
+            hovertemplate = '<b>%{label}</b><br>數量: %{value}<extra></extra>'
+
+            # 建立層次結構
+            hierarchy = {
+                'type': 'sunburst',
+                'labels': list(data.keys()),
+                'parents': ['', '', '', '出局數', '出局數', '被安打數', '被安打數'],
+                'values': list(data.values()),
+            }
+
+            # 建立 Sunburst 圖
+            fig = go.Figure(go.Sunburst(
+                labels=hierarchy['labels'],
+                parents=hierarchy['parents'],
+                values=hierarchy['values'],
+                branchvalues='total',
+                hovertemplate=hovertemplate
+            ))
+
+            fig.update_layout(margin=dict(t=10, b=10, r=10, l=10))
+
+            return fig   
+    return default_fig
