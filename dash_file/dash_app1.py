@@ -7,6 +7,7 @@ from . import cpbl_datasource
 import dash
 import base64
 import os
+from dash import callback_context
 
 dash1 = Dash(requests_pathname_prefix="/dash/app1/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -25,7 +26,7 @@ dash1.layout = html.Div(
         dbc.Container([
             html.Div([
                 html.Div([
-                    html.Img(src=[cpbl_datasource.team_logo('index_banner')]),
+                    html.Img(id='banner', width=1200),
                     html.Br(),
                     ],className="", style={'justify-content':'center', 'width':'100%'})
             ],
@@ -53,27 +54,27 @@ dash1.layout = html.Div(
             style={'justify-content':'center', 'display':'flex', 'padding':'1rem', 'margin':'2rem'}),
             
             html.Div([
-                html.A(className='team_logo',href='/dash/rakuten/', children=[
+                html.A(id='rakuten',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='190px', height='190px'),
                     ],style={'text-decoration': 'none'}),html.Br(),
                 
-                html.A(className='team_logo',href='/dash/brothers/', children=[
+                html.A(id='brothers',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('brothers')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/lions/', children=[
+                html.A(id='lions',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('lions')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/fubon/', children=[
+                html.A(id='fubon',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('fubon')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/dragons/', children=[
+                html.A(id='dragons',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('dragons')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(), 
                 
-                html.A(className='team_logo',href='/dash/index/', children=[
+                html.A(id='hawks',className='team_logo',href='#', children=[
                     html.Img(src=[cpbl_datasource.team_logo('hawks')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),  
                         
@@ -89,7 +90,7 @@ dash1.layout = html.Div(
                         style_table={'width':'90%', 'overflowY': 'auto', 'margin':'5%'},
                         fixed_rows={'headers': True},
                         row_selectable='single',
-                        selected_rows=[],
+                        selected_rows=[0],
                         style_cell_conditional=[
                                 {'textAlign': 'center'},
                                 {   'if': {'column': 'selected_rows'}, 'width': '5px'},
@@ -154,13 +155,10 @@ dash1.layout = html.Div(
 def search_clickBtn(n_clicks:None | int, inputValue:str):
     global current_df
     if n_clicks is not None:
-        print('clickbtn判斷')
-        #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
         current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        #print(searchData)
-        print('按確定')
+
         return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
     
     
@@ -188,7 +186,6 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             rows = cpbl_datasource.search_player_by_id(player_id)
-            print(f'回來了{rows}')
               
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
 
@@ -205,6 +202,9 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             {'if': {'column_id': '內容'}, 'width': '3%', 'height': '100%', 'text-align': 'center'},])
             
             return oneTable
+        
+
+
         
 
 #===================點擊球員資料後顯示圓餅圖======================
@@ -394,15 +394,38 @@ def game_out(selected_rows:list[int]):
     return default_fig
 
 #=========點擊Rakuten按鈕===========================
+@dash1.callback(
+    Output('banner', 'src'),
+    [Input('rakuten', 'n_clicks'), 
+     Input('brothers', 'n_clicks'),
+     Input('lions', 'n_clicks'),
+     Input('fubon', 'n_clicks'),
+     Input('dragons', 'n_clicks'),
+     Input('hawks', 'n_clicks')]
+)
+def clickBtn(*args):
+    ctx = callback_context
+    if any(args):
+        # 找到觸發的按鈕
+        triggered_button = ctx.triggered_id.split('.')[0]
 
+        if triggered_button == 'rakuten':
+            new_path = cpbl_datasource.img_pic('rakuten_index') 
+        elif triggered_button == 'brothers':
+            new_path = cpbl_datasource.img_pic('brothers_index') 
+        elif triggered_button == 'lions':
+            new_path = cpbl_datasource.img_pic('lions_index') 
+        elif triggered_button == 'fubon':
+            new_path = cpbl_datasource.team_logo('fubon_index') 
+        elif triggered_button == 'dragons':
+            new_path = cpbl_datasource.img_pic('dragons_index')
 
-def rakuten_clickBtn(n_clicks):
-    if n_clicks is not None:
-        rakuten_Data:list[tuple] = cpbl_datasource.search_by_team(word='樂天')
-        
-        rakuten_Data_df = pd.DataFrame(rakuten_Data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        print(rakuten_Data_df)
-        
-        return rakuten_Data_df.to_dict('records'),[{'id':column,'name':column} for column in rakuten_Data_df],[]  
+        elif triggered_button == 'hawks':
+            new_path = cpbl_datasource.team_logo('index_banner') 
+
+        return new_path
     
-    
+    else:
+        new_banner_path = cpbl_datasource.team_logo('index_banner') 
+        print('網頁剛啟動')
+        return new_banner_path

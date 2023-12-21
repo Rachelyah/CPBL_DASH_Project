@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
-import dash
 import base64
 import os
 
@@ -15,8 +14,8 @@ external_stylesheets=['assets/header.css']
 
 dash4.title='統一獅 中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
 
-current_data = cpbl_datasource.lastest_datetime_data()
-current_df = pd.DataFrame(current_data,
+lions_data = cpbl_datasource.lions_data()
+lions_df = pd.DataFrame(lions_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
@@ -25,9 +24,10 @@ dash4.layout = html.Div(
         dbc.Container([
             html.Div([
                 html.Div([
-                    html.Img(src=[cpbl_datasource.team_logo('index_banner')]),
+                    html.Img(src=[cpbl_datasource.img_pic('lions_index')],width=1200),
                     html.Br(),
-                    ],className="", style={'justify-content':'center', 'width':'100%'})
+                    ],className="", style={'justify-content':'center', 'width':'100%',
+                    'margin-left':'2rem'})
             ],
             className="row",
             style={"paddingTop":'2rem'}),
@@ -152,25 +152,21 @@ dash4.layout = html.Div(
 )
 
 def search_clickBtn(n_clicks:None | int, inputValue:str):
-    global current_df
+    global lions_df
     if n_clicks is not None:
-        print('clickbtn判斷')
-        #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
-        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        #print(searchData)
-        print('按確定')
-        return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
+        search_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        return search_df.to_dict('records'),[{'id':column,'name':column} for column in search_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
     else:
         print('第一次啟動')
-        current_data = cpbl_datasource.lastest_datetime_data()
-        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        lions_data = cpbl_datasource.lions_data()
+        lions_df = pd.DataFrame(lions_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
-        return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
+        return lions_df.to_dict('records'), [{'id':column,'name':column} for column in lions_df.columns],[]   
 
 
 #============下方顯示球員資料欄位=================
@@ -181,11 +177,11 @@ def search_clickBtn(n_clicks:None | int, inputValue:str):
 
 #抓出選擇的欄位內容
 def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
-        global current_df
+        global lions_df
         #def可以取得py檔的文件變數
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = lions_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             rows = cpbl_datasource.search_player_by_id(player_id)
             print(f'回來了{rows}')
@@ -215,10 +211,10 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
 
 #更新先發中繼圓餅圖
 def game_pie(selected_rows:list[int]):
-    global current_df
+    global lions_df
     default_fig = go.Figure()
     if len(selected_rows) != 0:
-        idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+        idSite:pd.DataFrame = lions_df.iloc[[selected_rows[0]]]
         player_id = int(idSite['球員編號'].iloc[0])
         rows = cpbl_datasource.search_player_game_pie(player_id)
         
@@ -255,10 +251,10 @@ def game_pie(selected_rows:list[int]):
     Input('main_table', 'selected_rows'),
 )
 def update_bar(selected_rows: list[int]):
-    global current_df
+    global lions_df
     default_fig = go.Figure()
     if len(selected_rows) != 0:
-        idSite: pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+        idSite: pd.DataFrame = lions_df.iloc[[selected_rows[0]]]
         player_id = int(idSite['球員編號'].iloc[0])
 
         rows = cpbl_datasource.search_player_by_id(player_id)
@@ -288,8 +284,6 @@ def update_bar(selected_rows: list[int]):
                  y=[player_k9,palyer_era],
                  marker_color='#0F2540')   
         ])
-        print('第一個',average_k9,player_k9)
-        print('第二個',average_era,palyer_era)
 
         fig.update_layout(
             barmode='group', 
@@ -306,10 +300,10 @@ def update_bar(selected_rows: list[int]):
 )
 
 def update_photo(selected_rows:list[int]):
-    global current_df
+    global lions_df
         #def可以取得py檔的文件變數
     if len(selected_rows) != 0:
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = lions_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             
             rows = cpbl_datasource.search_player_by_id(player_id)
@@ -340,12 +334,12 @@ def update_photo(selected_rows:list[int]):
 )
 
 def game_out(selected_rows:list[int]):
-    global current_df
+    global lions_df
     # 預設的圖表
     default_fig = go.Figure()
     if selected_rows:
             #宣告變數後面加上資料型別(type hint)
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = lions_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             
             #抓出所需資料

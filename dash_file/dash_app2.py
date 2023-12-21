@@ -15,8 +15,8 @@ external_stylesheets=['assets/header.css']
 
 dash2.title='樂天桃猿 中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
 
-current_data = cpbl_datasource.lastest_datetime_data()
-current_df = pd.DataFrame(current_data,
+rakuten_data = cpbl_datasource.rakuten_data()
+rakuten_df = pd.DataFrame(rakuten_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
@@ -152,25 +152,23 @@ dash2.layout = html.Div(
 )
 
 def search_clickBtn(n_clicks:None | int, inputValue:str):
-    global current_df
+    global rakuten_df
     if n_clicks is not None:
-        print('clickbtn判斷')
-        #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
-        current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        search_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
         #print(searchData)
         print('按確定')
-        return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
+        return search_df.to_dict('records'),[{'id':column,'name':column} for column in search_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
     else:
         print('第一次啟動')
-        current_data = cpbl_datasource.lastest_datetime_data()
-        current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
+        rakuten_data = cpbl_datasource.rakuten_data()
+        rakuten_df = pd.DataFrame(rakuten_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
-        return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
+        return rakuten_df.to_dict('records'), [{'id':column,'name':column} for column in rakuten_df.columns],[]   
 
 
 #============下方顯示球員資料欄位=================
@@ -181,14 +179,13 @@ def search_clickBtn(n_clicks:None | int, inputValue:str):
 
 #抓出選擇的欄位內容
 def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
-        global current_df
+        global rakuten_df
         #def可以取得py檔的文件變數
         if len(selected_rows) != 0:
               #宣告變數後面加上資料型別(type hint)
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = rakuten_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             rows = cpbl_datasource.search_player_by_id(player_id)
-            print(f'回來了{rows}')
               
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
 
@@ -215,10 +212,10 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
 
 #更新先發中繼圓餅圖
 def game_pie(selected_rows:list[int]):
-    global current_df
+    global rakuten_df
     default_fig = go.Figure()
     if len(selected_rows) != 0:
-        idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+        idSite:pd.DataFrame = rakuten_df.iloc[[selected_rows[0]]]
         player_id = int(idSite['球員編號'].iloc[0])
         rows = cpbl_datasource.search_player_game_pie(player_id)
         
@@ -255,10 +252,10 @@ def game_pie(selected_rows:list[int]):
     Input('main_table', 'selected_rows'),
 )
 def update_bar(selected_rows: list[int]):
-    global current_df
+    global rakuten_df
     default_fig = go.Figure()
     if len(selected_rows) != 0:
-        idSite: pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+        idSite: pd.DataFrame = rakuten_df.iloc[[selected_rows[0]]]
         player_id = int(idSite['球員編號'].iloc[0])
 
         rows = cpbl_datasource.search_player_by_id(player_id)
@@ -306,10 +303,10 @@ def update_bar(selected_rows: list[int]):
 )
 
 def update_photo(selected_rows:list[int]):
-    global current_df
+    global rakuten_df
         #def可以取得py檔的文件變數
     if len(selected_rows) != 0:
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = rakuten_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             
             rows = cpbl_datasource.search_player_by_id(player_id)
@@ -340,12 +337,12 @@ def update_photo(selected_rows:list[int]):
 )
 
 def game_out(selected_rows:list[int]):
-    global current_df
+    global rakuten_df
     # 預設的圖表
     default_fig = go.Figure()
     if selected_rows:
             #宣告變數後面加上資料型別(type hint)
-            idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
+            idSite:pd.DataFrame = rakuten_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             
             #抓出所需資料

@@ -15,7 +15,7 @@ external_stylesheets=['assets/header.css']
 
 dash6.title='味全龍 中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
 
-current_data = cpbl_datasource.lastest_datetime_data()
+current_data = cpbl_datasource.dragons_data()
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
@@ -25,9 +25,10 @@ dash6.layout = html.Div(
         dbc.Container([
             html.Div([
                 html.Div([
-                    html.Img(src=[cpbl_datasource.team_logo('index_banner')]),
+                    html.Img(src=[cpbl_datasource.img_pic('dragons_index')],width=1200),
                     html.Br(),
-                    ],className="", style={'justify-content':'center', 'width':'100%'})
+                    ],className="", style={'justify-content':'center', 'width':'100%',
+                    'margin-left':'2rem'})
             ],
             className="row",
             style={"paddingTop":'2rem'}),
@@ -154,20 +155,15 @@ dash6.layout = html.Div(
 def search_clickBtn(n_clicks:None | int, inputValue:str):
     global current_df
     if n_clicks is not None:
-        print('clickbtn判斷')
-        #print(inputValue)
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
         current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        #print(searchData)
-        print('按確定')
         return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
     else:
-        print('第一次啟動')
-        current_data = cpbl_datasource.lastest_datetime_data()
+        current_data = cpbl_datasource.dragons_data()
         current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   

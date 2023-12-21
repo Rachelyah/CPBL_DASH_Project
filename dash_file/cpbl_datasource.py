@@ -148,7 +148,6 @@ def lastest_datetime_data()->list[tuple]:
     cursor.close()
     conn.close()
     print('latest成功')
-    #print(f'latest_rows:{rows}')
     return rows
 
 #查詢球員姓名
@@ -333,3 +332,153 @@ def img_pic(word:str):
         new_img = "{}{}".format("data:image/jpg;base64, ", new_img)
         
         return new_img
+    
+#=====================樂天桃猿頁面用資料========================
+    #呼叫最新資料
+def rakuten_data()->list[tuple]:
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+        from cpbl_pitchings
+        where 所屬球隊 LIKE '樂天'
+    '''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+#=====================中信兄弟頁面用資料========================
+    #呼叫最新資料
+def brothers_data()->list[tuple]:
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+        from cpbl_pitchings
+        where 所屬球隊 LIKE '中信'
+    '''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+#=====================統一獅頁面用資料========================
+    #呼叫最新資料
+def lions_data()->list[tuple]:
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+        from cpbl_pitchings
+        where 所屬球隊 LIKE '統一'
+    '''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+#=====================統一獅頁面用資料========================
+    #呼叫最新資料
+def fubon_data()->list[tuple]:
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+        from cpbl_pitchings
+        where 所屬球隊 LIKE '富邦'
+    '''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+#=====================統一獅頁面用資料========================
+    #呼叫最新資料
+def dragons_data()->list[tuple]:
+    conn = psycopg2.connect(database=DATABASE,
+                            user=USER, 
+                            password=PASSWORD,
+                            host=HOST, 
+                            port="5432")
+    cursor = conn.cursor()
+    sql = '''
+    select 
+        年份, 
+        所屬球隊, 
+        球員編號, 
+        球員姓名, 
+        先發次數, 
+        中繼次數, 
+        勝場數, 
+        敗場數, 
+        三振數, 
+        自責分 
+        from cpbl_pitchings
+        where 所屬球隊 LIKE '味全'
+    '''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
