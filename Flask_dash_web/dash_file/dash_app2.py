@@ -234,22 +234,23 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
         #宣告變數後面加上資料型別(type hint)
         idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
         player_id = int(idSite['球員編號'].iloc[0])
-        print(f"Player ID: {player_id}")
             
         rows = cpbl_datasource.search_player_by_id(player_id)
-        oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
+        oneSite_df:pd.DataFrame = pd.DataFrame(rows,
+                                               columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
         
 
         #畫圖
         # 計算平均值
         k9_rea = cpbl_datasource.avg_k9_rea()
-        k9_rea_df = pd.DataFrame(k9_rea,columns=['所屬球隊', '球員姓名', '背號', '投打習慣','身高體重', '生日','奪三振率','防禦率'])
+        k9_rea_df = pd.DataFrame(k9_rea,
+                                 columns=['所屬球隊', '球員姓名', '背號', '投打習慣','身高體重', '生日','奪三振率','防禦率'])
 
         average_k9 = k9_rea_df['奪三振率'].mean()
         average_era = k9_rea_df['防禦率'].mean()
 
         # 建立長條圖
-        fig = px.bar(oneSite_df,x='球員姓名',y=['奪三振率','防禦率'], barmode='group')
+        fig = px.bar(oneSite_df,x='球員姓名',y=['奪三振率','防禦率'], barmode='group', text=['奪三振率', '防禦率'])
 
         # 加入第一條虛線表示平均值
         fig.add_shape(
@@ -284,6 +285,12 @@ def update_bar(selected_rows:list[int]): #傳入list[裡面放int]
             title='奪三振率與防禦率',
             bargap=0.2,
             yaxis_range=[0,10])
+        
+        # 在每個長條上設置文字位置
+        # 在每個長條上設置文字位置
+        for i in range(2):
+            fig.data[i].textposition = 'auto'
+            fig.data[i].texttemplate = f"%{fig.data[i].name} %{fig.data[i].name}"  # 顯示數值
                       
         print('fig已完成')
         return fig
