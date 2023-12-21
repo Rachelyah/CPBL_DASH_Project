@@ -133,15 +133,16 @@ dash1.layout = html.Div(
             className="container text-center",style={'width':'100%','margin-left': '0', 'text-align':'center'}),
             html.Div([
                 html.Div([
-                dcc.Graph(id='info')],
-                className='show',
-                style={'paddingTop':'2rem'}),
+                    dcc.Graph(id='info')],
+                    className='show',
+                    style={'paddingTop':'2rem'}),
                 
                 html.Div([
+                    html.Label(['對戰統計'],style={'font-size':'19px'}),
                     dcc.Graph(id='game_out', figure=go.Figure())],
                     className='show',
                     style={'paddingTop':'2rem'})
-                    ], style={'display':'flex', 'padding':'2rem','justify-content':'space-between'}),
+                    ], style={'display':'flex', 'padding':'2rem','justify-content':'space-between', 'height':'80%'}),
         ])
     ],
     className="container-lg"
@@ -365,7 +366,7 @@ def game_out(selected_rows:list[int]):
     # 預設的圖表
     default_fig = go.Figure()
     if selected_rows:
-              #宣告變數後面加上資料型別(type hint)
+            #宣告變數後面加上資料型別(type hint)
             print('update photo開始')
             idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
@@ -403,11 +404,14 @@ def game_out(selected_rows:list[int]):
                 parents=hierarchy['parents'],
                 values=hierarchy['values'],
                 branchvalues='total',
-                hovertemplate=hovertemplate
+                hovertemplate=hovertemplate,
+                #marker=dict(
+                #colors=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']),
             ))
 
             fig.update_layout(margin=dict(t=10, b=10, r=10, l=10),
-                              font=dict(size=18), width=400)
+                              font=dict(size=18), 
+                              width=400)
             
 
             return fig   
@@ -418,7 +422,6 @@ def game_out(selected_rows:list[int]):
 
 def rakuten_clickBtn(n_clicks):
     if n_clicks is not None:
-        print('按鈕啟動')
         rakuten_Data:list[tuple] = cpbl_datasource.search_by_team(word='樂天')
         
         rakuten_Data_df = pd.DataFrame(rakuten_Data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
