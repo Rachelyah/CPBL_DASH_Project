@@ -4,14 +4,18 @@ import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
-import base64
 import dash
+import base64
 import os
 
 dash2 = Dash(requests_pathname_prefix="/dash/app2/", external_stylesheets=[dbc.themes.BOOTSTRAP])
-dash2.title='中華職棒查詢'
-current_data = cpbl_datasource.lastest_datetime_data()
 
+#連結外部css檔
+external_stylesheets=['assets/header.css']
+
+dash2.title='中華職棒查詢'
+
+current_data = cpbl_datasource.lastest_datetime_data()
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
@@ -45,20 +49,33 @@ dash2.layout = html.Div(
             ],
             className="row row-cols-auto align-items-end",
             style={"paddingTop":'2rem'}),
-
+            
             html.Div([
-                    dcc.Location(id='url', refresh=False),
-                    html.Div(id='output'),
-                    html.Button("按鈕跳轉到頁面 3", id='btnn',className='btn btn-primary',  style={'background-color': 'blue', 'color': 'white'}),
-                ]),
-
-            html.Div([
-               html.Button(children='樂天桃猿', id='rakuten',className='btn btn-danger btn-lg'),
-               html.Button(children='中信兄弟', id='brothers',className='btn btn-warning btn-lg'),
-               html.Button(children='味全龍', id='gragons',className='btn btn-info btn-lg'),
-               html.Button(children='富邦悍將', id='fubon',className='btn btn-primary btn-lg'),
-               html.Button(children='統一7-ELEVEn獅', id='lions',className='btn btn-lg',style={'background-color':'orange'}),
-            ],className='justify-content-center',style={"padding":'2rem'}),
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('monkeys')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(),
+                
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('brothers')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
+                
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('lions')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
+                
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('fubon')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
+                
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('dragons')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(), 
+                
+                html.A(className='team_logo',href='/dash/app1/', children=[
+                html.Img(src=[cpbl_datasource.team_logo('hawks')], width=250, height=250),
+                 ],style={'text-decoration': 'none'}),html.Br(),   
+                        
+            ],className='team_box'),
 
             html.Div([
                 html.Div([
@@ -399,11 +416,4 @@ def rakuten_clickBtn(n_clicks):
         
         return rakuten_Data_df.to_dict('records'),[{'id':column,'name':column} for column in rakuten_Data_df],[]  
     
-
-@callback(
-    Output('url', 'pathname'),
-    [Input('btnn', 'n_clicks')]
-)
-def update_url(n_clicks):
-    if n_clicks:
-        return '/dash/app1/'
+    

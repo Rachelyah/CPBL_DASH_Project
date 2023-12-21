@@ -5,6 +5,7 @@ import psycopg2
 import csv
 import socket
 import os
+import base64
 
 myip = socket.gethostbyname(socket.gethostname())
 
@@ -306,3 +307,16 @@ def search_by_team(word:str):
     conn.close()
     #print(rows)
     return rows
+
+#=============按鈕用照片洗出編碼的地方======================
+def team_logo(team:str):
+    img_folder = os.path.join(os.getcwd(),'dash_file' ,'assets', 'img')
+    team_png= f'{team}.png'
+    team_logo = os.path.join(img_folder, team_png)
+
+    with open(team_logo, "rb") as team_png:
+        logo = base64.b64encode(team_png.read())
+        logo = logo.decode()
+        logo = "{}{}".format("data:image/png;base64, ", logo)
+        
+        return logo
