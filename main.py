@@ -1,7 +1,6 @@
 from flask import Flask,render_template,url_for
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
-from dash_file.dash_index import index
 from dash_file.dash_app1 import dash1
 from dash_file.dash_app2 import dash2
 from dash_file.dash_app3 import dash3
@@ -11,8 +10,8 @@ from dash_file.dash_app6 import dash6
 
 
 application = DispatcherMiddleware(
-    index.server,
-    {"/dash/index":index.server,
+    dash1.server,
+    {
     "/dash/app1": dash1.server,
     '/dash/rakuten':dash2.server,
     '/dash/brothers':dash3.server,

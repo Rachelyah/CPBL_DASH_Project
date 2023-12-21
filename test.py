@@ -3,31 +3,32 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
-from . import cpbl_datasource
+from .dash_file import cpbl_datasource
+import dash
 import base64
 import os
+from dash import callback_context
 
-dash5 = Dash(requests_pathname_prefix="/dash/fubon/", external_stylesheets=[dbc.themes.BOOTSTRAP])
+dash1 = Dash(requests_pathname_prefix="/dash/app1/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 #連結外部css檔
 external_stylesheets=['assets/header.css']
 
-dash5.title='富邦悍將 中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
+dash1.title='中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
 
-current_data = cpbl_datasource.fubon_data()
+current_data = cpbl_datasource.lastest_datetime_data()
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
-dash5.layout = html.Div(
+dash1.layout = html.Div(
     [
         dbc.Container([
             html.Div([
                 html.Div([
-                    html.Img(src=[cpbl_datasource.team_logo('fubon_index')],width=1200),
+                    html.Img(id='banner', width=1200),
                     html.Br(),
-                    ],className="", style={'justify-content':'center', 'width':'100%',
-                    'margin-left':'2rem'})
+                    ],className="", style={'justify-content':'center', 'width':'100%'})
             ],
             className="row",
             style={"paddingTop":'2rem'}),
@@ -53,35 +54,31 @@ dash5.layout = html.Div(
             style={'justify-content':'center', 'display':'flex', 'padding':'1rem', 'margin':'2rem'}),
             
             html.Div([
-                html.A(id='rakuten',className='team_logo',href='/dash/rakuten', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='150px', height='150px'),
-                    ],style={'text-decoration': 'none',}),html.Br(),
+                html.A(id='rakuten',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='190px', height='190px'),
+                    ],style={'text-decoration': 'none'}),html.Br(),
                 
-                html.A(id='brothers',className='team_logo',href='/dash/brothers', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('brothers')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
+                html.A(id='brothers',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('brothers')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(id='lions',className='team_logo',href='/dash/lions', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('lions')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
+                html.A(id='lions',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('lions')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(id='fubon',className='team_logo',href='/dash/fubon', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('fubon')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
+                html.A(id='fubon',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('fubon')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),html.Br(),  
                 
-                html.A(id='dragons',className='team_logo',href='/dash/dragons', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('dragons')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(), 
+                html.A(id='dragons',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('dragons')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),html.Br(), 
                 
-                html.A(id='hawks',className='team_logo',href='/dash/app1', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('hawks')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),
-
-                html.A(id='home',className='team_logo',href='/dash/app1', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('cpbl')], width='160px', height='160px'),
-                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
+                html.A(id='hawks',className='team_logo',href='#', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('hawks')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),  
                         
-            ],className='team_box', style={'display':'flex', 'justify-content':'center'}),
+            ],className='team_box', style={'display':'flex',  'justify-content':'space-between', 'padding':'2rem'}),
 
             html.Div([
                 html.H3(['球員列表']),
@@ -93,7 +90,7 @@ dash5.layout = html.Div(
                         style_table={'width':'90%', 'overflowY': 'auto', 'margin':'5%'},
                         fixed_rows={'headers': True},
                         row_selectable='single',
-                        selected_rows=[],
+                        selected_rows=[0],
                         style_cell_conditional=[
                                 {'textAlign': 'center'},
                                 {   'if': {'column': 'selected_rows'}, 'width': '5px'},
@@ -144,15 +141,12 @@ dash5.layout = html.Div(
                     className='col',
                     style={'margin-left':'8rem', 'padding':'3rem'}),
             ], className='row',style={'display':'flex','justify-content':'space-between'}),
-
-            html.Div(['© Copyright 2023 by Rachel Yeh'],
-            style={'width':'1200px','height':'100px', 'background-color':'#0F2540', 'color':'white','textAlign': 'center','leight-height':'100px' ,'margin':'auto', 'padding':'2rem'})
         ])        
     ],
     className="container-lg")
 
 #按下查詢按鈕，啟動查詢＆回傳資料  
-@dash5.callback(
+@dash1.callback(
     [Output('main_table','data'), Output('main_table', 'columns'), Output('main_table', 'selected_rows')],
     [Input('btn','n_clicks')],
     [State('input_value','value')],
@@ -164,22 +158,21 @@ def search_clickBtn(n_clicks:None | int, inputValue:str):
         #呼叫datasource的搜尋方法，傳出list[tuple]
         searchData:list[tuple] = cpbl_datasource.search_sitename(inputValue)
         current_df = pd.DataFrame(searchData,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        #print(searchData)
-        print('按確定')
+
         return current_df.to_dict('records'),[{'id':column,'name':column} for column in current_df],[]
     
     
     #當clickBtn is None -> 「確定」按鈕沒被按下，網頁剛啟動時
     else:
         print('第一次啟動')
-        current_data = cpbl_datasource.fubon_data()
+        current_data = cpbl_datasource.lastest_datetime_data()
         current_df = pd.DataFrame(current_data,columns=['年份', '所屬球隊', '球員編號', '球員姓名',  '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
         return current_df.to_dict('records'), [{'id':column,'name':column} for column in current_df.columns],[]   
 
 
 #============下方顯示球員資料欄位=================
-@dash5.callback(
+@dash1.callback(
     Output('showMessage','children'),
     Input('main_table','selected_rows')
 )
@@ -193,7 +186,6 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             idSite:pd.DataFrame = current_df.iloc[[selected_rows[0]]]
             player_id = int(idSite['球員編號'].iloc[0])
             rows = cpbl_datasource.search_player_by_id(player_id)
-            print(f'回來了{rows}')
               
             oneSite_df:pd.DataFrame = pd.DataFrame(rows,columns=['所屬球隊', '球員姓名', '背號', '投打習慣', '身高體重', '生日', '奪三振率', '防禦率'])
 
@@ -212,8 +204,11 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
             return oneTable
         
 
+
+        
+
 #===================點擊球員資料後顯示圓餅圖======================
-@dash5.callback(
+@dash1.callback(
     Output('game_pie','figure'),
     Input('main_table','selected_rows')
 )
@@ -255,7 +250,7 @@ def game_pie(selected_rows:list[int]):
     return default_fig
         
 # 更新圖表
-@dash5.callback(
+@dash1.callback(
     Output('info', 'figure'),
     Input('main_table', 'selected_rows'),
 )
@@ -305,7 +300,7 @@ def update_bar(selected_rows: list[int]):
 
 
 #===============顯示照片========================
-@dash5.callback(
+@dash1.callback(
     Output('photo', 'src'),
     Input('main_table','selected_rows')
 )
@@ -339,7 +334,7 @@ def update_photo(selected_rows:list[int]):
             return img_data
         
 #===============對戰分析========================
-@dash5.callback(
+@dash1.callback(
     Output('game_out', 'figure'),
     Input('main_table','selected_rows')
 )
@@ -397,3 +392,48 @@ def game_out(selected_rows:list[int]):
 
             return fig   
     return default_fig
+
+#=========點擊Rakuten按鈕===========================
+@dash1.callback(
+    [Output('banner', 'src'),
+     Output('main_table','data'), 
+     Output('main_table', 'columns'), 
+     Output('main_table', 'selected_rows')
+     ]
+    [Input('rakuten', 'n_clicks'), 
+     Input('brothers', 'n_clicks'),
+     Input('lions', 'n_clicks'),
+     Input('fubon', 'n_clicks'),
+     Input('dragons', 'n_clicks'),
+     Input('hawks', 'n_clicks'),
+     Input('btn','n_clicks')
+     ]
+
+    [State('input_value','value')]
+)
+def clickBtn(*args):
+    ctx = callback_context
+    if any(args):
+        # 找到觸發的按鈕
+        triggered_button = ctx.triggered_id.split('.')[0]
+
+        if triggered_button == 'rakuten':
+            new_path = cpbl_datasource.img_pic('rakuten_index') 
+        elif triggered_button == 'brothers':
+            new_path = cpbl_datasource.img_pic('brothers_index') 
+        elif triggered_button == 'lions':
+            new_path = cpbl_datasource.img_pic('lions_index') 
+        elif triggered_button == 'fubon':
+            new_path = cpbl_datasource.team_logo('fubon_index') 
+        elif triggered_button == 'dragons':
+            new_path = cpbl_datasource.img_pic('dragons_index')
+
+        elif triggered_button == 'hawks':
+            new_path = cpbl_datasource.team_logo('index_banner') 
+
+        return new_path
+    
+    else:
+        new_banner_path = cpbl_datasource.team_logo('index_banner') 
+        print('網頁剛啟動')
+        return new_banner_path

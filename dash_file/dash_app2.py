@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
-import dash
 import base64
 import os
 
@@ -52,32 +51,36 @@ dash2.layout = html.Div(
             className="search-btn",
             style={'justify-content':'center', 'display':'flex', 'padding':'1rem', 'margin':'2rem'}),
             
-                        html.Div([
-                html.A(className='team_logo',href='/dash/rakuten/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='190px', height='190px'),
-                    ],style={'text-decoration': 'none'}),html.Br(),
+            html.Div([
+                html.A(id='rakuten',className='team_logo',href='/dash/rakuten', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='150px', height='150px'),
+                    ],style={'text-decoration': 'none',}),html.Br(),
                 
-                html.A(className='team_logo',href='/dash/brothers/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('brothers')], width='200px', height='200px'),
-                 ],style={'text-decoration': 'none'}),html.Br(),  
+                html.A(id='brothers',className='team_logo',href='/dash/brothers', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('brothers')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/lions/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('lions')], width='200px', height='200px'),
-                 ],style={'text-decoration': 'none'}),html.Br(),  
+                html.A(id='lions',className='team_logo',href='/dash/lions', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('lions')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/fubon/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('fubon')], width='200px', height='200px'),
-                 ],style={'text-decoration': 'none'}),html.Br(),  
+                html.A(id='fubon',className='team_logo',href='/dash/fubon', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('fubon')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
                 
-                html.A(className='team_logo',href='/dash/dragons/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('dragons')], width='200px', height='200px'),
-                 ],style={'text-decoration': 'none'}),html.Br(), 
+                html.A(id='dragons',className='team_logo',href='/dash/dragons', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('dragons')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(), 
                 
-                html.A(className='team_logo',href='/dash/index/', children=[
-                    html.Img(src=[cpbl_datasource.team_logo('hawks')], width='200px', height='200px'),
-                 ],style={'text-decoration': 'none'}),  
+                html.A(id='hawks',className='team_logo',href='/dash/app1', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('hawks')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),
+
+                html.A(id='home',className='team_logo',href='/dash/app1', children=[
+                    html.Img(src=[cpbl_datasource.team_logo('cpbl')], width='160px', height='160px'),
+                 ],style={'text-decoration': 'none','margin-left':'2rem'}),html.Br(),  
                         
-            ],className='team_box', style={'display':'flex',  'justify-content':'space-between', 'padding':'2rem'}),
+            ],className='team_box', style={'display':'flex', 'justify-content':'center'}),
 
             html.Div([
                 html.H3(['球員列表']),
@@ -140,6 +143,9 @@ dash2.layout = html.Div(
                     className='col',
                     style={'margin-left':'8rem', 'padding':'3rem'}),
             ], className='row',style={'display':'flex','justify-content':'space-between'}),
+            
+            html.Div(['© Copyright 2023 by Rachel Yeh'],
+            style={'width':'1200px','height':'100px', 'background-color':'#0F2540', 'color':'white','textAlign': 'center','leight-height':'100px' ,'margin':'auto', 'padding':'2rem'})
         ])        
     ],
     className="container-lg")
