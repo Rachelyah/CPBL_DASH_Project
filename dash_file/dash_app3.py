@@ -8,19 +8,19 @@ import dash
 import base64
 import os
 
-dash1 = Dash(requests_pathname_prefix="/dash/app1/", external_stylesheets=[dbc.themes.BOOTSTRAP])
+dash3 = Dash(requests_pathname_prefix="/dash/brothers/", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 #連結外部css檔
 external_stylesheets=['assets/header.css']
 
-dash1.title='中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
+dash3.title='中華職棒投手資料查詢系統-Chinese Professional Baseball League Pitchers'
 
 current_data = cpbl_datasource.lastest_datetime_data()
 current_df = pd.DataFrame(current_data,
                           columns=['年份','所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
 
 #layout
-dash1.layout = html.Div(
+dash3.layout = html.Div(
     [
         dbc.Container([
             html.Div([
@@ -145,7 +145,7 @@ dash1.layout = html.Div(
     className="container-lg")
 
 #按下查詢按鈕，啟動查詢＆回傳資料  
-@dash1.callback(
+@dash3.callback(
     [Output('main_table','data'), Output('main_table', 'columns'), Output('main_table', 'selected_rows')],
     [Input('btn','n_clicks')],
     [State('input_value','value')],
@@ -174,7 +174,7 @@ def search_clickBtn(n_clicks:None | int, inputValue:str):
 
 
 #============下方顯示球員資料欄位=================
-@dash1.callback(
+@dash3.callback(
     Output('showMessage','children'),
     Input('main_table','selected_rows')
 )
@@ -208,7 +208,7 @@ def selectedRow(selected_rows:list[int]): #傳入list[裡面放int]
         
 
 #===================點擊球員資料後顯示圓餅圖======================
-@dash1.callback(
+@dash3.callback(
     Output('game_pie','figure'),
     Input('main_table','selected_rows')
 )
@@ -250,7 +250,7 @@ def game_pie(selected_rows:list[int]):
     return default_fig
         
 # 更新圖表
-@dash1.callback(
+@dash3.callback(
     Output('info', 'figure'),
     Input('main_table', 'selected_rows'),
 )
@@ -300,7 +300,7 @@ def update_bar(selected_rows: list[int]):
 
 
 #===============顯示照片========================
-@dash1.callback(
+@dash3.callback(
     Output('photo', 'src'),
     Input('main_table','selected_rows')
 )
@@ -334,7 +334,7 @@ def update_photo(selected_rows:list[int]):
             return img_data
         
 #===============對戰分析========================
-@dash1.callback(
+@dash3.callback(
     Output('game_out', 'figure'),
     Input('main_table','selected_rows')
 )
@@ -393,16 +393,4 @@ def game_out(selected_rows:list[int]):
             return fig   
     return default_fig
 
-#=========點擊Rakuten按鈕===========================
-
-
-def rakuten_clickBtn(n_clicks):
-    if n_clicks is not None:
-        rakuten_Data:list[tuple] = cpbl_datasource.search_by_team(word='樂天')
-        
-        rakuten_Data_df = pd.DataFrame(rakuten_Data,columns=['年份', '所屬球隊', '球員編號', '球員姓名', '先發次數', '中繼次數', '勝場數', '敗場數', '三振數', '自責分'])
-        print(rakuten_Data_df)
-        
-        return rakuten_Data_df.to_dict('records'),[{'id':column,'name':column} for column in rakuten_Data_df],[]  
-    
     

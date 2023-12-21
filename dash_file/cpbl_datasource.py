@@ -308,7 +308,7 @@ def search_by_team(word:str):
     #print(rows)
     return rows
 
-#=============按鈕用照片洗出編碼的地方======================
+#=============<PNG>按鈕用照片洗出編碼的地方======================
 def team_logo(team:str):
     img_folder = os.path.join(os.getcwd(),'dash_file' ,'assets', 'img')
     team_png= f'{team}.png'
@@ -320,3 +320,16 @@ def team_logo(team:str):
         logo = "{}{}".format("data:image/png;base64, ", logo)
         
         return logo
+    
+#=============<IMG>按鈕用照片洗出編碼的地方======================
+def img_pic(word:str):
+    img_folder = os.path.join(os.getcwd(),'dash_file' ,'assets', 'img')
+    img= f'{word}.jpg'
+    img_path = os.path.join(img_folder, img)
+
+    with open(img_path, "rb") as img:
+        new_img = base64.b64encode(img.read())
+        new_img = new_img.decode()
+        new_img = "{}{}".format("data:image/jpg;base64, ", new_img)
+        
+        return new_img
