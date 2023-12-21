@@ -52,30 +52,30 @@ dash2.layout = html.Div(
             
             html.Div([
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('monkeys')], width=250, height=250),
-                 ],style={'text-decoration': 'none'}),html.Br(),
+                    html.Img(src=[cpbl_datasource.team_logo('monkeys'),],width='200px', height='200px'),
+                    ],style={'text-decoration': 'none'}),html.Br(),
                 
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('brothers')], width=250, height=250),
+                    html.Img(src=[cpbl_datasource.team_logo('brothers')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('lions')], width=250, height=250),
+                    html.Img(src=[cpbl_datasource.team_logo('lions')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('fubon')], width=250, height=250),
+                    html.Img(src=[cpbl_datasource.team_logo('fubon')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(),  
                 
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('dragons')], width=250, height=250),
+                    html.Img(src=[cpbl_datasource.team_logo('dragons')], width='200px', height='200px'),
                  ],style={'text-decoration': 'none'}),html.Br(), 
                 
                 html.A(className='team_logo',href='/dash/app1/', children=[
-                html.Img(src=[cpbl_datasource.team_logo('hawks')], width=250, height=250),
-                 ],style={'text-decoration': 'none'}),html.Br(),   
+                    html.Img(src=[cpbl_datasource.team_logo('hawks')], width='200px', height='200px'),
+                 ],style={'text-decoration': 'none'}),  
                         
-            ],className='team_box'),
+            ],className='team_box', style={'display':'flex',  'justify-content':'space-between'}),
 
             html.Div([
                 html.Div([
