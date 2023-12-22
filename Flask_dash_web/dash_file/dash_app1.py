@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import pandas as pd
 import dash_bootstrap_components as dbc
 from . import cpbl_datasource
-import dash
 import base64
 import os
 
